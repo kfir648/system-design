@@ -39,11 +39,17 @@ public class Date {
 	}
 	@Override
 	public String toString() {
-		return  day + "," + month + "," + year ;
+		return  day + "" + month + "" + year ;
 	}
 	
 	public String getDate(){
 		return this.toString();
 	}
 	
+	public Date getDateFromString(String str){
+		int day =Integer.parseInt("" + str.charAt(0) + (str.charAt(1)));
+		int month =Integer.parseInt("" + str.charAt(2) + (str.charAt(3)));
+		int year =Integer.parseInt("" + str.charAt(4) + (str.charAt(5))+ str.charAt(6) + (str.charAt(7)));
+		return new Date(day,month,year);
+	}
 }

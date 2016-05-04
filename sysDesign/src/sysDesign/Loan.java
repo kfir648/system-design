@@ -5,19 +5,19 @@ public class Loan {
 	private float amount;
 	private Date finalDate;
 	private Date firstPaymentDate;
-	private int paymentNumber;
+	private int MonthlyPaymentNumber;
 	
 	
-	public Loan(float amount, Date finalDate, Date firstPaymentDate, int paymentNumber) {
-		super();
+	public Loan(float amount, Date finalDate, Date firstPaymentDate, int MonthlyPaymentNumber) {
+		
 		this.amount = amount;
 		this.finalDate = finalDate;
 		this.firstPaymentDate = firstPaymentDate;
-		this.paymentNumber = paymentNumber;
+		this.MonthlyPaymentNumber = MonthlyPaymentNumber;
 	}
 	
-	public Loan(float amount, int day,int month, int year, Date firstPaymentDate, int paymentNumber) {
-		this( amount,new Date(day,month,year), firstPaymentDate,  paymentNumber);
+	public Loan(float amount, int day,int month, int year, Date firstPaymentDate, int MonthlyPaymentNumber) {
+		this( amount,new Date(day,month,year), firstPaymentDate,  MonthlyPaymentNumber);
 	}
 
 	public float getAmount() {
@@ -44,8 +44,8 @@ public class Loan {
 		this.firstPaymentDate = firstPaymentDate;
 	}
 
-	public int getPaymentNumber() {
-		return paymentNumber;
+	public int getMonthlyPaymentNumber() {
+		return MonthlyPaymentNumber;
 	}
 	
 	
