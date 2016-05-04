@@ -7,6 +7,11 @@ public class Customer {
 	
 	
 	
+	public Customer(int customeriD, String customerName) {
+		this.customeriD = customeriD;
+		this.customerName = customerName;
+	}
+	
 	public String getCustomerName() {
 		return customerName;
 	}
