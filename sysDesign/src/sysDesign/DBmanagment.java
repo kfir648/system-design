@@ -27,7 +27,7 @@ public class DBmanagment {
 			s.execute("CREATE TABLE IF NOT EXISTS savings(monthlyAmount int, finalDate varchar(8)))");
 			s.execute("CREATE TABLE IF NOT EXISTS table loan(amount int, finalDate varchar(8), firstPayment varchar(8)"
 					+ "monthlyPay int");
-			s.execute("CREATE TABLE IF NOT EXISTS table transaction
+			//s.execute("CREATE TABLE IF NOT EXISTS table transaction
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
