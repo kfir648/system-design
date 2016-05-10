@@ -9,11 +9,10 @@ import api_otherBank.transf.TransferRequestTuple;
 
 public class OtherBankTrans {
 	
-	private String name = "IBTS";
-    private Registry registry;
+	private final String name = "IBTS";
     private IBTS server;
-    private int id;
-    private String secret;
+    private final int id = 255;
+    private final String secret;
 	
     private static OtherBankTrans otherBankTrans = null;
 	
@@ -25,7 +24,6 @@ public class OtherBankTrans {
 	}
 	
 	private OtherBankTrans() {
-		name = "IBTS";
 		registry = LocateRegistry.getRegistry(args[0]);
 		server = (IBTS) registry.lookup(name);
 		id = 255;
