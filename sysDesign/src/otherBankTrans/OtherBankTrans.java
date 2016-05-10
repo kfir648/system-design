@@ -28,7 +28,7 @@ public class OtherBankTrans {
 	private ArrayList<TransactionListener> newTranslisteners = null;
 	private ArrayList<ConformTransactionListener> conformTransactionListeners = null;
 
-	private final static long TIME_TO_CHECK_INCOM_TRANS = 10000;
+	private final static long TIME_TO_CHECK_INCOM_TRANS = 10000; //10 seconds
 	private final static String NAME = "IBTS";
 	private final static int ID = 255;
 	private final static String SECRET = "7cufHngk";
@@ -68,7 +68,7 @@ public class OtherBankTrans {
 		newTranslisteners.add(listener);
 	}
 
-	public void removeNewTransferListener(TransactionListener listener) {
+	public synchronized void removeNewTransferListener(TransactionListener listener) {
 		if (listener == null)
 			return;
 		if (newTranslisteners == null)
@@ -86,7 +86,7 @@ public class OtherBankTrans {
 		conformTransactionListeners.add(listener);
 	}
 
-	public void removeConformTransferListener(ConformTransactionListener listener) {
+	public synchronized void removeConformTransferListener(ConformTransactionListener listener) {
 		if (listener == null)
 			return;
 		if (conformTransactionListeners == null)
@@ -181,13 +181,13 @@ public class OtherBankTrans {
 			reqId = START_REQUEST_ID;
 			accessFile = new RandomAccessFile(file, "w");
 			accessFile.writeInt(START_REQUEST_ID);
-			accessFile.close();
 		} else {
 			accessFile = new RandomAccessFile(file, "wr");
 			reqId = accessFile.readInt() + 1;
 			accessFile.seek(0);
 			accessFile.writeInt(reqId);
 		}
+		accessFile.close();
 		return reqId;
 	}
 
