@@ -16,6 +16,7 @@ import api_otherBank.AuthException;
 import api_otherBank.IBTS;
 import api_otherBank.transf.TransferException;
 import api_otherBank.transf.TransferRequestTuple;
+import api_otherBank.transf.TransferResult;
 import sysDesign.Account;
 
 public class OtherBankTrans {
@@ -24,7 +25,8 @@ public class OtherBankTrans {
 	private boolean threadWorking;
 
 	private static OtherBankTrans otherBankTrans = null;
-	private ArrayList<TransactionListener> listeners = null;
+	private ArrayList<TransactionListener> newTranslisteners = null;
+	private ArrayList<ConformTransactionListener> conformTransactionListeners = null;
 
 	private final static long TIME_TO_CHECK_INCOM_TRANS = 10000;
 	private final static String NAME = "IBTS";
@@ -34,7 +36,7 @@ public class OtherBankTrans {
 	private final static int START_REQUEST_ID = 1;
 	private final static int MAX_TRANSACTIONS = 10;
 
-	public static OtherBankTrans getBankTrans() {
+	public static OtherBankTrans getOtherBankTrans() {
 		try {
 			if (otherBankTrans == null)
 				otherBankTrans = new OtherBankTrans();
@@ -56,22 +58,40 @@ public class OtherBankTrans {
 		}
 	}
 
-	public synchronized void addListener(TransactionListener listener) {
+	public synchronized void addNewTransferListener(TransactionListener listener) {
 		if (listener == null)
 			return;
-		if (listeners == null)
-			listeners = new ArrayList<>();
-		if (listeners.contains(listener))
+		if (newTranslisteners == null)
+			newTranslisteners = new ArrayList<>();
+		if (newTranslisteners.contains(listener))
 			return;
-		listeners.add(listener);
+		newTranslisteners.add(listener);
 	}
 
-	public void removeListener(TransactionListener listener) {
+	public void removeNewTransferListener(TransactionListener listener) {
 		if (listener == null)
 			return;
-		if (listeners == null)
+		if (newTranslisteners == null)
 			return;
-		listeners.remove(listener);
+		newTranslisteners.remove(listener);
+	}
+	
+	public synchronized void addConformTransferListener(ConformTransactionListener listener) {
+		if (listener == null)
+			return;
+		if (conformTransactionListeners == null)
+			conformTransactionListeners = new ArrayList<>();
+		if (conformTransactionListeners.contains(listener))
+			return;
+		conformTransactionListeners.add(listener);
+	}
+
+	public void removeConformTransferListener(ConformTransactionListener listener) {
+		if (listener == null)
+			return;
+		if (conformTransactionListeners == null)
+			return;
+		conformTransactionListeners.remove(listener);
 	}
 
 	private OtherBankTrans() throws RemoteException, NotBoundException {
@@ -86,7 +106,11 @@ public class OtherBankTrans {
 					try {
 						Set<TransferRequestTuple> transferRequestTuples = server.getNewRequestsFor(SECRET, ID, MAX_TRANSACTIONS);
 						if (!transferRequestTuples.isEmpty())
-							fireListeners(transferRequestTuples);
+							fireNewRequestListeners(transferRequestTuples);
+						
+						Set<TransferResult> transferResults = server.getCompletedRequestsOf(SECRET, ID, MAX_TRANSACTIONS);
+						if(!transferResults.isEmpty())
+							fireConformRequestListeners(transferResults);
 						Thread.sleep(TIME_TO_CHECK_INCOM_TRANS);
 					} catch (InterruptedException | RemoteException | SQLException | AuthException e) {
 						e.printStackTrace();
@@ -109,13 +133,23 @@ public class OtherBankTrans {
 
 	}
 
-	private void fireListeners(Set<TransferRequestTuple> transferRequestTuple) {
-		if (listeners == null || listeners.isEmpty())
+	private void fireNewRequestListeners(Set<TransferRequestTuple> transferRequestTuple) {
+		if (newTranslisteners == null || newTranslisteners.isEmpty())
 			return;
 
 		TransactionEvent event = new TransactionEvent(this, transferRequestTuple);
-		for (TransactionListener listener : listeners) {
+		for (TransactionListener listener : newTranslisteners) {
 			listener.transactionIncomes(event);
+		}
+	}
+	
+	private void fireConformRequestListeners(Set<TransferResult> transferResults) {
+		if (conformTransactionListeners == null || conformTransactionListeners.isEmpty())
+			return;
+
+		ConformEvent event = new ConformEvent(this, transferResults);
+		for (ConformTransactionListener listener : conformTransactionListeners) {
+			listener.conformTransaction(event);
 		}
 	}
 
@@ -158,28 +192,34 @@ public class OtherBankTrans {
 	}
 
 	public static void main(String[] args) {
-		try {
-			String name = "IBTS";
-			Registry registry = LocateRegistry.getRegistry(args[0]);
-			IBTS server = (IBTS) registry.lookup(name);
-
-			int myId = 666;
-			String mySecret = "secret";
-
-			Set<TransferRequestTuple> incomingReqs = server.getNewRequestsFor(mySecret, myId, 3);
-			for (TransferRequestTuple reqTuple : incomingReqs) {
-				server.accept(mySecret, myId, reqTuple.receiverAccountId, reqTuple.id);
+		OtherBankTrans bankTrans = getOtherBankTrans();
+		bankTrans.addNewTransferListener(new TransactionListener() {
+			@Override
+			public void transactionIncomes(TransactionEvent event) {
+				for(TransferRequestTuple requestTuple : event.getTransferRequestTuple())
+				{
+					bankTrans.accept(requestTuple);
+					System.out.println("the transactions " + requestTuple.id + " accepted");
+				}
 			}
-
-		} catch (Exception e) {
-			System.err.println("DemoClient exception:");
-			e.printStackTrace();
-		}
+		});
+		bankTrans.addConformTransferListener(new ConformTransactionListener() {
+			@Override
+			public void conformTransaction(ConformEvent event) {
+				for(TransferResult result : event.getTransferResult())
+					System.out.println(result.getRequestId());				
+			}
+		});
+		bankTrans.sendTransaction(new Account(1234, 4321), new Account(43212, 2324), ID, 123);
 	}
 }
 
 interface TransactionListener {
 	void transactionIncomes(TransactionEvent event);
+}
+
+interface ConformTransactionListener {
+	void conformTransaction(ConformEvent event);
 }
 
 class TransactionEvent extends EventObject {
@@ -194,4 +234,19 @@ class TransactionEvent extends EventObject {
 	public Set<TransferRequestTuple> getTransferRequestTuple() {
 		return transferRequestTuple;
 	}
+}
+
+class ConformEvent extends EventObject {
+	private static final long serialVersionUID = 2L;
+	private Set<TransferResult> transferResults;
+	
+	public ConformEvent(Object source , Set<TransferResult> transferResults) {
+		super(source);
+		this.transferResults = transferResults;
+	}
+	
+	public Set<TransferResult> getTransferResult() {
+		return transferResults;
+	}
+	
 }
