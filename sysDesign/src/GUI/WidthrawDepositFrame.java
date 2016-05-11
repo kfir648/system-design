@@ -1,7 +1,6 @@
 package GUI;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -16,7 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 
 public class WidthrawDepositFrame extends JDialog {
-
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField txtfAmount;
 	private JTextField txtfTargetAccount;

@@ -191,27 +191,27 @@ public class OtherBankTrans {
 		return reqId;
 	}
 
-	public static void main(String[] args) {
-		OtherBankTrans bankTrans = getOtherBankTrans();
-		bankTrans.addNewTransferListener(new TransactionListener() {
-			@Override
-			public void transactionIncomes(TransactionEvent event) {
-				for(TransferRequestTuple requestTuple : event.getTransferRequestTuple())
-				{
-					bankTrans.accept(requestTuple);
-					System.out.println("the transactions " + requestTuple.id + " accepted");
-				}
-			}
-		});
-		bankTrans.addConformTransferListener(new ConformTransactionListener() {
-			@Override
-			public void conformTransaction(ConformEvent event) {
-				for(TransferResult result : event.getTransferResult())
-					System.out.println(result.getRequestId());				
-			}
-		});
-		bankTrans.sendTransaction(new Account(1234, 4321), new Account(43212, 2324), ID, 123);
-	}
+//	public static void main(String[] args) {
+//		OtherBankTrans bankTrans = getOtherBankTrans();
+//		bankTrans.addNewTransferListener(new TransactionListener() {
+//			@Override
+//			public void transactionIncomes(TransactionEvent event) {
+//				for(TransferRequestTuple requestTuple : event.getTransferRequestTuple())
+//				{
+//					bankTrans.accept(requestTuple);
+//					System.out.println("the transactions " + requestTuple.id + " accepted");
+//				}
+//			}
+//		});
+//		bankTrans.addConformTransferListener(new ConformTransactionListener() {
+//			@Override
+//			public void conformTransaction(ConformEvent event) {
+//				for(TransferResult result : event.getTransferResult())
+//					System.out.println(result.getRequestId());				
+//			}
+//		});
+//		bankTrans.sendTransaction(new Account(1234, 4321), new Account(43212, 2324), ID, 123);
+//	}
 }
 
 interface TransactionListener {

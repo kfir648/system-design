@@ -8,23 +8,50 @@ import java.util.Properties;
 
 public class DataBaseInstall {
 
-	private static Connection conn;
 	private static String dbName;
 	private static String password;
 	private static String userName;
 	private static Properties props;
-	private static String protocol = "jdbc:derby:";
+	private static Connection conn = null;
 	private static Statement s;
+	private static String protocol = "jdbc:derby:";
+
+	String table[] = {"OtherBankTransfer", "MonthlyTransaction", "Transactions","AccountSavings", "AccountLoans",
+			"Savings", "Loans", "CustomerAccount",  "Customer", "Account",};
+
+	String query[] = {
+			"Account(accountID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 100, INCREMENT BY 1), balance float NOT NULL, PRIMARY KEY (accountID))",
+
+			"Customer(customerID int NOT NULL, name varchar(20), surname varchar(20),  PRIMARY KEY (customerID))",
+
+			"CustomerAccount (accountID int NOT NULL, customerID int NOT NULL, FOREIGN KEY (customerID) REFERENCES Customer(customerID)  , FOREIGN KEY (accountID) REFERENCES Account(accountID))",
+			
+			"Loans(programID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 200, INCREMENT BY 1), amount float, startDate varchar(12), finalDate varchar(12), PRIMARY KEY (programID))",
+
+			"Savings(programID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 300, INCREMENT BY 1), monthlyDeposit float NOT NULL, startDate varchar(12), finalDate varchar(12), PRIMARY KEY (programID))",
+			
+			"AccountLoans(accountID int, programID int, FOREIGN KEY (accountID) REFERENCES Account(accountID), FOREIGN KEY (programID) REFERENCES Loans (programID))",
+			
+			"AccountSavings(accountID int, programID int, FOREIGN KEY (accountID) REFERENCES Account(accountID), FOREIGN KEY (programID) REFERENCES Savings (programID))",
+			
+			"Transactions(transactionID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 400, INCREMENT BY 1), amount float, Date varchar(12), sourceID int, destinationID int, PRIMARY KEY (transactionID))", // account exists rely on logic
+
+			"MonthlyTransaction(transactionID int, typeID int, type varchar(10), FOREIGN KEY (transactionID) REFERENCES Transactions (transactionID))",   // type (loan or saving) rely on logic
+			
+			"OtherBankTransfer(transactionID int, transferID int, FOREIGN KEY (transactionID) REFERENCES Transactions (transactionID))",
+	
+			
+			 };
 
 	public DataBaseInstall(String dbName) {
-		setDbName(dbName);
+		DataBaseInstall.dbName = dbName;
 	}
 
 	public DataBaseInstall(String dbName, String password, String userName) {
 
-		setDbName(dbName);
-		setPassword(password);
-		setUserName(userName);
+		DataBaseInstall.dbName = dbName;
+		DataBaseInstall.password = password;
+		DataBaseInstall.userName = userName;
 		props = new Properties();
 		props.setProperty(userName, password);
 
@@ -36,131 +63,55 @@ public class DataBaseInstall {
 
 			System.out.println("Data-Base installation begins");
 
-			conn = null;
-
 			if (userName != null && password != null)
-				conn = DriverManager.getConnection(protocol + dbName + ";create=true");
+				conn = DriverManager.getConnection(protocol + dbName
+						+ ";create=true");
 			else
-				conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
+				conn = DriverManager.getConnection(protocol + dbName
+						+ ";create=true", props);
 
 			System.out.println("Connected to and created database " + dbName);
 
-			conn.setAutoCommit(true);
-
-			s = conn.createStatement();
+			conn.setAutoCommit(false);
 
 			System.out.println("Creates tables");
-			dropTableIfExis("Account", conn);
-			dropTableIfExis("Customer", conn);
-			dropTableIfExis("CustomerAccount", conn);
-			dropTableIfExis("Loans", conn);
-			dropTableIfExis("Savings", conn);
-			dropTableIfExis("OtherBankTransfer", conn);
-			dropTableIfExis("InsideBankTransaction", conn);
-			s = conn.createStatement();
-			s.execute("create table Account(accountID int NOT NULL, " + "balance float, PRIMARY KEY (accountID))");
 
-			// conn.commit();
-			s = conn.createStatement();
-
-			s.execute(
-					"create table Customer(customerID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1, INCREMENT BY 1), "
-							+ "name varchar(20), surname varchar(20),  PRIMARY KEY (customerID))");
-
-			// conn.commit();
-			// s = conn.createStatement();
-
-			s.execute("create table CustomerAccount(" + "A_Id int NOT NULL , " + "C_Id int NOT NULL ,"
-					+ "CONSTRAINT C_FK " + "FOREIGN KEY (A_ID) " + "REFERENCES Account(accountID) ,"
-					+ "CONSTRAINT A_FK " + "FOREIGN KEY (C_ID) " + "REFERENCES Customer(customerID))");
-
-			// conn.commit();
-			s = conn.createStatement();
-
-			s.execute("create table Loans (" + "loanID int NOT NULL, " + "amount float, " + "startDate varchar(12), "
-					+ "finalDate varchar(12), " + "monthlyPayment float, " + "PRIMARY KEY loanID, "
-					+ "FOREIGN KEY (A_Id) REFERENCES Account(accountID)");
-
-			// conn.commit();
-			s = conn.createStatement();
-
-			s.execute("create table Savings(savingID int NOT NULL, amount float, startDate varchar(12), "
-					+ "finalDate varchar(12), monthlyDeposit float, "
-					+ "PRIMARY KEY savingID, (FOREIGN KEY (A_Id) REFERENCES Account(accountID)");
-
-			// conn.commit();
-			s = conn.createStatement();
-
-			s.execute("create table OtherBankTransfer(" + "transferID NOT NULL, " + "amount float, "
-					+ "date varchar(12), " + "destinationID int, "
-					+ "FOREIGN KEY (source_Id) Account(accountID), PRIMARY KEY transferID");
-			// conn.commit();
-			s = conn.createStatement();
-
-			s.execute("create table InsideBankTransaction(transactionID NOT NULL, amount float,"
-					+ "date varchar(12), FOREIGN KEY (destination_Id) Account(accountID), "
-					+ "FOREIGN KEY (source_Id) Account(accountID), PRIMARY KEY transactionID");
-
-			// conn.commit();
-
-			System.out.println("Committed the transaction");
-
-			try {
-
-				DriverManager.getConnection("jdbc:derby:;shutdown=true");
-
-			} catch (SQLException se) {
-
-				if (((se.getErrorCode() == 50000) && ("XJ015".equals(se.getSQLState())))) {
-
-					System.out.println("Derby shut down normally");
-
-				} else {
-
-					System.err.println("Derby did not shut down normally");
-					printSQLException(se);
-
+			for (int i = 0; i < table.length; i++) {
+				try {
+					dropTable(table[i]);
+				} catch (SQLException e) {
+					System.out.println(table[i] + " Does not exist");
 				}
 			}
+
+			for (int i = 0; i < query.length; i++) {
+				System.out.println("Creates Table "+table[(table.length-1)-i]);
+				createTable(query[i]);
+				System.out.println("Table " + table[(table.length-1)-i] + " was created successfuly");
+			}
+			System.out.println("Committed the transaction");
 
 		} catch (SQLException e) {
 
 			printSQLException(e);
 
-		} finally {
-			// release all open resources to avoid unnecessary memory usage
-
-			// Connection
-			try {
-				if (conn != null) {
-					conn.close();
-					conn = null;
-				}
-			} catch (SQLException sqle) {
-				printSQLException(sqle);
-			}
 		}
 	}
 
-	public static void dropTableIfExis(String name, Connection conn) {
-		try {
-			Statement s = conn.createStatement();
-			s.execute("DROP TABLE " + name);
-			// conn.commit();
-		} catch (Exception e) {
-		}
+	public static void createTable(String query) throws SQLException {
+
+		s = conn.createStatement();
+		s.execute("create table " + query);
+		conn.commit();
 	}
 
-	public static void setDbName(String dbName) {
-		DataBaseInstall.dbName = dbName;
-	}
+	public static void dropTable(String query) throws SQLException {
 
-	public static void setPassword(String password) {
-		DataBaseInstall.password = password;
-	}
+		s = conn.createStatement();
+		;
+		s.execute("drop table " + query);
+		conn.commit();
 
-	public static void setUserName(String userName) {
-		DataBaseInstall.userName = userName;
 	}
 
 	public static void printSQLException(SQLException e) {

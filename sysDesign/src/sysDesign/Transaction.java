@@ -10,7 +10,7 @@ public abstract class Transaction {
 	public Transaction(float amount, Date transactionDate,int sourceAccountNumber,int destenationAccountNumber) {
 		this.amount = amount;
 		this.transactionDate = transactionDate;
-		this.destenationAccountNumber=destenationAccountNumber;
+		this.destenationAccountNumber = destenationAccountNumber;
 		this.sourceAccountNumber=sourceAccountNumber;
 	}
 	
