@@ -15,7 +15,6 @@ public abstract class Transaction {
 	}
 	
 	public Transaction(float amount,int day, int month, int year,int sourceAccountNumber,int destenationAccountNumber){
-		
 		this(amount,new Date(day,month,year),sourceAccountNumber,destenationAccountNumber);
 	}
 	
