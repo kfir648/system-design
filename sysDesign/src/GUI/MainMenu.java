@@ -2,6 +2,9 @@ package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -34,6 +37,15 @@ public class MainMenu extends JFrame {
 		JButton btnWidthrawdeposit = new JButton("widthraw/deposit");
 		btnWidthrawdeposit.setBounds(20, 151, 159, 31);
 		contentPane.add(btnWidthrawdeposit);
+		btnWidthrawdeposit.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				new WidthrawDepositFrame();
+			}
+		});
+		
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setVisible(true);
