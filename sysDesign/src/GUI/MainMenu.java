@@ -29,6 +29,14 @@ public class MainMenu extends JFrame {
 		JButton btnLoans = new JButton("Loans");
 		btnLoans.setBounds(20, 67, 159, 31);
 		contentPane.add(btnLoans);
+		btnLoans.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				new LoanDialog();
+			}
+		});
 		
 		JButton btnSavings = new JButton("Savings");
 		btnSavings.setBounds(20, 109, 159, 31);
