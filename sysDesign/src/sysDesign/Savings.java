@@ -1,12 +1,11 @@
 package sysDesign;
 
 public class Savings {
-
+	
 	private int MonthlyPaymentNumber;
 	private Date finalSavingsDate;
 	
 	public Savings(int monthlyPaymentNumber, Date finalSavingsDate) {
-		
 		MonthlyPaymentNumber = monthlyPaymentNumber;
 		this.finalSavingsDate = finalSavingsDate;
 	}
