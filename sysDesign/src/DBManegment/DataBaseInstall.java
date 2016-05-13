@@ -100,12 +100,16 @@ public class DataBaseInstall {
 			
 			"Saving_transfer("
 			+ " transaction_ID int,"
+			+ " payment_Number int,"
+			+ " final_Date int,"
 			+ " saving_id int ,"
 			+ " FOREIGN KEY (transaction_ID) REFERENCES Transactions (transaction_ID),"
 			+ " FOREIGN KEY (saving_id) REFERENCES Saving (saving_ID))",
 			
 			"Loan_transfer("
 			+ " transaction_ID int ,"
+			+ " payment_Number int,"
+			+ " final_Date int,"
 			+ " loan_id int,"
 			+ " FOREIGN KEY (transaction_ID) REFERENCES Transactions (transaction_ID),"
 			+ " FOREIGN KEY (loan_id) REFERENCES loan (loan_ID))",

@@ -18,7 +18,7 @@ public class Saving {
 		this.savingId = savingId;
 	}
 	
-	public Saving(Date startSavingDate ,Date finalSavingsDate) throws SQLException {
+	public Saving(Date startSavingDate ,Date finalSavingsDate) throws Exception {
 		this.startSavingDate = startSavingDate;
 		this.finalSavingsDate = finalSavingsDate;
 		

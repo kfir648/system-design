@@ -1,5 +1,6 @@
 package sysDesign;
 
+import java.sql.SQLException;
 import java.util.Set;
 
 import DBManegment.DataBaseService;
@@ -24,7 +25,7 @@ public class Customer {
 		return customeriD;
 	}
 	
-	public Set<Account> getAllAccounts() {
+	public Set<Account> getAllAccounts() throws SQLException {
 		return DataBaseService.getDataBaseService().getAccountsByCustomerID(customeriD);
 	}
 

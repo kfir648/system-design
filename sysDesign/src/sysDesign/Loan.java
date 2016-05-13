@@ -19,7 +19,7 @@ public class Loan {
 		this.firstPaymentDate = firstPaymentDate;
 	}
 	
-	public Loan(float amount, Date finalDate, Date firstPaymentDate) throws SQLException {
+	public Loan(float amount, Date finalDate, Date firstPaymentDate) throws Exception {
 		this.amount = amount;
 		this.finalDate = finalDate;
 		this.firstPaymentDate = firstPaymentDate;

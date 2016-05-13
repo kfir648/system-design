@@ -43,9 +43,9 @@ public interface DatabaseInterface {
 
 	public Bank getBank() throws IOException;
 
-	public Account getAccountByID(int id);
+	public Account getAccountByID(int id) throws SQLException;
 
-	public Customer getCustomerByID(int id);
+	public Customer getCustomerByID(int id) throws SQLException;
 
 	public Set<Account> getAccountsByCustomerID(int id) throws SQLException;
 
@@ -55,9 +55,9 @@ public interface DatabaseInterface {
 
 	public Set<Saving> getSavingByAccountID(int id) throws SQLException;
 
-	public Set<Transaction> getHistoryTransactionByAccountID(int id);
+	public Set<Transaction> getHistoryTransactionByAccountID(int id) throws Exception;
 	
-	public Transaction getTransactionById(int id);
+	public Transaction getTransactionById(int id) throws Exception;
 
 	public Loan getLoanById(int id) throws SQLException;
 	

@@ -1,5 +1,7 @@
 package sysDesign;
 
+import java.sql.SQLException;
+
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
 
@@ -13,7 +15,7 @@ public class Account {
 		this.accountBalance = accountBalance;
 	}
 	
-	public Account(float accountBalance) {
+	public Account(float accountBalance) throws SQLException {
 		this.accountBalance = accountBalance;
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();
