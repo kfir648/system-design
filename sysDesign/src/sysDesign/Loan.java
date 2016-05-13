@@ -1,5 +1,7 @@
 package sysDesign;
 
+import java.sql.SQLException;
+
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
 
@@ -10,14 +12,14 @@ public class Loan {
 	private Date firstPaymentDate;
 	private int loanId;
 	
-	public Loan(int loanId , float amount, Date finalDate, Date firstPaymentDate) {
+	public Loan(int loanId , float amount, Date firstPaymentDate , Date finalDate) {
 		this.loanId = loanId;
 		this.amount = amount;
 		this.finalDate = finalDate;
 		this.firstPaymentDate = firstPaymentDate;
 	}
 	
-	public Loan(float amount, Date finalDate, Date firstPaymentDate) {
+	public Loan(float amount, Date finalDate, Date firstPaymentDate) throws SQLException {
 		this.amount = amount;
 		this.finalDate = finalDate;
 		this.firstPaymentDate = firstPaymentDate;
@@ -39,7 +41,7 @@ public class Loan {
 	}
 	
 	public int getMonthlyPaymentNumber() {
-		return MonthlyPaymentNumber;
+		return finalDate.month + finalDate.year * 12 - firstPaymentDate.month - firstPaymentDate.year * 12;
 	}
 
 	public int getLoanId() {

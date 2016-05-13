@@ -1,5 +1,8 @@
 package DBManegment;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Set;
 
 import sysDesign.Account;
@@ -11,81 +14,52 @@ import sysDesign.Transaction;
 
 public interface DatabaseInterface {
 
-	public int insertAccount(float balance);
+	public int insertAccount(float balance) throws SQLException;
 
-	public boolean insertCustomer(int customerId, String customerName);
+	public void insertCustomer(int customerId, String customerName) throws Exception;
 
 	public int insertLoan(float amount, sysDesign.Date startDate,
-			sysDesign.Date finalDate); // a program of loan
+			sysDesign.Date finalDate) throws Exception; // a program of loan
 
-	public int insertSavings(float monthlyDeposit, sysDesign.Date startDate,
-			sysDesign.Date finalDate); // a program of saving
+	public int insertSaving(float monthlyDeposit, sysDesign.Date startDate, sysDesign.Date finalDate) throws Exception; // a program of saving
+	
+	public void insertBindCustomerAccount(int accountId, int customerId) throws Exception;
 
-	public int insertTransaction(float amount, sysDesign.Date date,
-			int sourceID, int DestinationID); // LOGIC responosibility to check
-												// account exists
+	public void insertAccountLoans(int accountID, int loanID) throws Exception; 
 
-	public boolean insertMonthlyTransaction(int transactionID, int typeID,
-			String type); // type == loanid / savingid
+	public void insertAccountSavings(int accountID, int savingID) throws Exception; 
 
-	public boolean insertOtherBankTransfer(int transactionID, int transferID); // transfer
-																				// id
-																				// from
-																				// other
-																				// bank,
-																				// transaction
-																				// on
-																				// this
-																				// bank.
+	public int insertTransaction(Transaction transaction) throws Exception;
+	
+	public void updateAccountBalanceByID(float amount, int id) throws Exception; 
 
-	public boolean insertBindCustomerAccount(int accountId, int customerId); // binds
-																				// in
-																				// logic
-																				// customer
-																				// with
-																				// account.
+	public void updateBankNumber(int bankNumber) throws IOException;
 
-	public boolean insertAccountLoans(int accountID, int loanID); // bind
-																	// account
-																	// to loans
+	public void updateBankName(String bankName) throws IOException;
 
-	public boolean insertAccountSavings(int accountID, int savingID); // bind
-																		// savings
-																		// to
-																		// loans
+	public void updateBankLoanInterest(float interest) throws IOException;
 
-	public boolean updateAccountBalanceByID(float amount, int id); // update
-																	// (not the
-																	// profit)
-																	// new
-																	// amount
+	public void updateBankSavingInterest(float interest) throws IOException;
 
-	public boolean updateBankNumber(int bankNumber);
-
-	public boolean updateBankName(String bankName);
-
-	public boolean updateBankLoanInterest(float interest);
-
-	public boolean updateBankSavingInterest(float interest);
-
-	public Bank getBank();
+	public Bank getBank() throws IOException;
 
 	public Account getAccountByID(int id);
 
 	public Customer getCustomerByID(int id);
 
-	public Set<Account> getAccountsByCustomerID(int id);
+	public Set<Account> getAccountsByCustomerID(int id) throws SQLException;
 
-	public Set<Customer> getCustomersByAccountID(int id);
+	public Set<Customer> getCustomersByAccountID(int id) throws SQLException;
 
-	public Set<Loan> getLoansByAccountID(int id);
+	public Set<Loan> getLoansByAccountID(int id) throws SQLException;
 
-	public Set<Saving> getSavingByAccountID(int id);
+	public Set<Saving> getSavingByAccountID(int id) throws SQLException;
 
 	public Set<Transaction> getHistoryTransactionByAccountID(int id);
-
-	int insertTransaction(Transaction transaction) throws Exception;
 	
-	public Loan getLoanById(int id);
-	public Saving getSavingById(int id);
+	public Transaction getTransactionById(int id);
+
+	public Loan getLoanById(int id) throws SQLException;
+	
+	public Saving getSavingById(int id) throws SQLException;
 }

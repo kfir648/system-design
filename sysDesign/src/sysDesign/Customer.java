@@ -1,11 +1,13 @@
 package sysDesign;
 
+import java.util.Set;
+
+import DBManegment.DataBaseService;
+
 public class Customer {
 
 	private int customeriD;
 	private String customerName;
-	
-	
 	
 	public Customer(int customeriD, String customerName) {
 		this.customeriD = customeriD;
@@ -21,6 +23,9 @@ public class Customer {
 	public int getCustomeriD() {
 		return customeriD;
 	}
-
+	
+	public Set<Account> getAllAccounts() {
+		return DataBaseService.getDataBaseService().getAccountsByCustomerID(customeriD);
+	}
 
 }

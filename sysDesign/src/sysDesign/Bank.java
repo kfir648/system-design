@@ -1,5 +1,7 @@
 package sysDesign;
 
+import java.io.IOException;
+
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
 
@@ -11,7 +13,7 @@ public class Bank {
 	
 	private static Bank thisBank = null;
 	
-	public static Bank getThisBank() {
+	public static Bank getThisBank() throws IOException {
 		if(thisBank == null)
 			thisBank = DataBaseService.getDataBaseService().getBank();
 		return thisBank;

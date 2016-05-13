@@ -8,8 +8,8 @@ public class SameBankTransfer extends Transaction {
 	int sourceAccountNumber;
 	int destenationAccountNumber;
 	
-	public SameBankTransfer(float amount, Date transactionDate, int sourceAccountNumber, int destenationAccountNumber) {
-		super(amount, transactionDate);
+	public SameBankTransfer(float amount, Date transactionDate , int accountId , int sourceAccountNumber, int destenationAccountNumber) {
+		super(amount, transactionDate , accountId);
 		this.sourceAccountNumber = sourceAccountNumber;
 		this.destenationAccountNumber = destenationAccountNumber;
 	}

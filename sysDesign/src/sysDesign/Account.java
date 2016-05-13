@@ -23,7 +23,7 @@ public class Account {
 	public float getAccountBalance() {
 		return accountBalance;
 	}
-	public void setAccountBalance(float accountBalance) {
+	public void setAccountBalance(float accountBalance) throws Exception {
 		this.accountBalance = accountBalance;
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();

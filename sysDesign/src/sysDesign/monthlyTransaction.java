@@ -4,9 +4,9 @@ public abstract class monthlyTransaction extends Transaction {
 	private int paymentNumber;
 	private Date finalDate;
 	
-	public monthlyTransaction(float amount, Date transactionDate, int sourceAccountNumber, 
+	public monthlyTransaction(float amount, Date transactionDate , int accountId , int sourceAccountNumber, 
 			int destenationAccountNumber, int paymentNumber, Date finalDate) {
-		super(amount, transactionDate);
+		super(amount, transactionDate , accountId);
 		this.paymentNumber = paymentNumber;
 		this.finalDate = finalDate;
 	}

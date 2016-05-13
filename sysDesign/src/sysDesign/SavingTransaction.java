@@ -7,8 +7,8 @@ public class SavingTransaction extends monthlyTransaction {
 
 	private int saving;
 	
-	public SavingTransaction(float amount, Date transactionDate, int sourceAccountNumber, int destenationAccountNumber, int paymentNumber, Date finalDate , int saving) {
-		super(amount, transactionDate, sourceAccountNumber, destenationAccountNumber, paymentNumber, finalDate);
+	public SavingTransaction(float amount, Date transactionDate , int accountId , int sourceAccountNumber, int destenationAccountNumber, int paymentNumber, Date finalDate , int saving) {
+		super(amount, transactionDate, accountId , sourceAccountNumber, destenationAccountNumber, paymentNumber, finalDate);
 		this.saving = saving;
 	}
 	

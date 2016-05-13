@@ -15,17 +15,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import otherBankTrans.OtherBankTrans;
-import sysDesign.Account;
-import sysDesign.Bank;
-import sysDesign.Customer;
-import sysDesign.Date;
-import sysDesign.Loan;
-import sysDesign.LoanTransaction;
-import sysDesign.OtherBankTransfer;
-import sysDesign.SameBankTransfer;
-import sysDesign.SavingTransaction;
-import sysDesign.Saving;
-import sysDesign.Transaction;
+import sysDesign.*;
 
 public class DataBaseService implements DatabaseInterface {
 
@@ -33,7 +23,16 @@ public class DataBaseService implements DatabaseInterface {
 	private static final int LOAN_TRANS_ID = 1;
 	private static final int SAME_BANK_TRANS_ID = 2;
 	private static final int OTHER_BANK_ID = 3;
-	
+
+	private static final String BANK_FILE_NAME = "myBank.dat"; // bankId ,
+																// savingIntrest
+																// , loanIntrest
+																// , bankName
+	private static final int BANK_ID_POS = 0;
+	private static final int BANK_SAVING_INTREST_POS = Integer.BYTES;
+	private static final int BANK_LOAN_INTREST_POS = Float.BYTES + Integer.BYTES;
+	private static final int BANK_NAME_POS = Integer.BYTES * 2 + Float.BYTES;
+
 	private static String password;
 	private static String userName;
 	private static Properties props;
@@ -142,254 +141,173 @@ public class DataBaseService implements DatabaseInterface {
 	}
 
 	@Override
-	public int insertAccount(float balance) {
+	public int insertAccount(float balance) throws SQLException {
 
 		int newAccId;
 		ResultSet rs = null;
 		PreparedStatement psInsert = null;
 
-		if (balance < 0)
-			return -1;
+		psInsert = conn.prepareStatement("insert into account(balance) VALUES(?)", new String[] { "ACCOUNT_ID" });
+		psInsert.setFloat(1, balance);
+		psInsert.executeUpdate();
+		rs = psInsert.getGeneratedKeys();
 
-		try {
-
-			psInsert = conn.prepareStatement("insert into account (balance) VALUES(?)", new String[] { "ACCOUNTID" });
-
-			psInsert.setFloat(1, balance);
-
-			psInsert.executeUpdate();
-
-			rs = psInsert.getGeneratedKeys();
-
-			rs.next();
-
-			newAccId = rs.getInt(1);
-
-			conn.commit();
-
-		} catch (SQLException e) {
-			printSQLException(e);
-			return -1;
-		}
+		rs.next();
+		newAccId = rs.getInt(1);
+		conn.commit();
 
 		return newAccId;
-
 	}
 
 	@Override
-	public boolean insertCustomer(int customerId, String customerName) {
-
+	public void insertCustomer(int customerId, String customerName) throws Exception {
 		PreparedStatement psInsert = null;
 
 		if (customerId <= 0)
-			return false;
+			throw new Exception("customerId is negative");
 
-		try {
+		psInsert = conn.prepareStatement("insert into customer(customerID, name) VALUES(?,?)");
 
-			psInsert = conn.prepareStatement("insert into customer(customerID, name) VALUES(?,?)");
+		psInsert.setInt(1, customerId);
+		psInsert.setString(2, customerName);
 
-			psInsert.setInt(1, customerId);
-			psInsert.setString(2, customerName);
+		psInsert.executeUpdate();
 
-			psInsert.executeUpdate();
-
-			conn.commit();
-
-		} catch (SQLException e) {
-
-			printSQLException(e);
-			return false;
-		}
-
-		return true;
+		conn.commit();
 	}
 
 	@Override
-	public int insertLoan(float amount, Date startDate, Date finalDate) {
-
+	public int insertLoan(float amount, Date startDate, Date finalDate) throws Exception {
 		int loanID;
-		ResultSet rs = null;
-		PreparedStatement psInsert = null;
 
-		if (startDate == null || finalDate == null || amount <= 0)
-			return -1;
+		if (startDate == null || finalDate == null)
+			throw new Exception("StartDate or finalDate is null");
 
-		try {
+		if (amount <= 0)
+			throw new Exception("amount is negative");
 
-			psInsert = conn.prepareStatement("insert into loans(amount, startDate, finalDate)" + " VALUES (?,?,?)",
-					new String[] { "PROGRAMID" });
+		PreparedStatement psInsert = conn.prepareStatement(
+				"insert into loans(amount, start_Date, final_Date) VALUES (?,?,?)", new String[] { "LOAN_ID" });
 
-			psInsert.setFloat(1, amount);
-			psInsert.setString(2, startDate.toString());
-			psInsert.setString(3, finalDate.toString());
+		psInsert.setFloat(1, amount);
+		psInsert.setString(2, startDate.toString());
+		psInsert.setString(3, finalDate.toString());
 
-			psInsert.executeUpdate();
+		psInsert.executeUpdate();
 
-			rs = psInsert.getGeneratedKeys();
+		ResultSet rs = psInsert.getGeneratedKeys();
 
-			rs.next();
+		rs.next();
 
-			loanID = rs.getInt(1);
+		loanID = rs.getInt(1);
 
-			conn.commit();
-
-		} catch (SQLException e) {
-
-			printSQLException(e);
-			return -1;
-		}
+		conn.commit();
 
 		return loanID;
 
 	}
 
 	@Override
-	public int insertSavings(float monthlyDeposit, Date startDate, Date finalDate) {
+	public int insertSaving(float monthlyDeposit, Date startDate, Date finalDate) throws Exception {
 
 		int savingID;
 		ResultSet rs = null;
 		PreparedStatement psInsert = null;
 
-		if (startDate == null || finalDate == null || monthlyDeposit <= 0)
-			return -1;
+		if (startDate == null || finalDate == null)
+			throw new Exception("startDate or finalDate is null");
+		if (monthlyDeposit <= 0)
+			throw new Exception("mounthlyDeposit is negative");
+		psInsert = conn.prepareStatement("insert into saving(monthly_Deposit, start_Date, final_Date) values (?,?,?)",
+				new String[] { "saving_ID" });
 
-		try {
+		psInsert.setFloat(1, monthlyDeposit);
+		psInsert.setString(2, startDate.formatDate());
+		psInsert.setString(3, finalDate.formatDate());
 
-			psInsert = conn.prepareStatement(
-					"insert into savings (monthlyDeposit, startDate, finalDate)" + " values (?,?,?)",
-					new String[] { "PROGRAMID" });
+		psInsert.executeUpdate();
 
-			psInsert.setFloat(1, monthlyDeposit);
-			psInsert.setString(2, startDate.toString());
-			psInsert.setString(3, finalDate.toString());
+		rs = psInsert.getGeneratedKeys();
 
-			psInsert.executeUpdate();
+		rs.next();
 
-			rs = psInsert.getGeneratedKeys();
+		savingID = rs.getInt(1);
 
-			rs.next();
-
-			savingID = rs.getInt(1);
-
-			conn.commit();
-
-		} catch (SQLException e) {
-
-			printSQLException(e);
-			return -1;
-		}
+		conn.commit();
 
 		return savingID;
 
 	}
 
-	public boolean insertBindCustomerAccount(int accountId, int customerId) {
-
-		PreparedStatement psInsert = null;
-
+	public void insertBindCustomerAccount(int accountId, int customerId) throws Exception {
 		if (accountId < 0 || customerId < 0)
-			return false;
+			throw new Exception("accountId or customerId is negative");
 
-		try {
+		PreparedStatement psInsert = conn
+				.prepareStatement("insert into CustomerAccount(accountId, customerId) VALUES(?,?)");
 
-			psInsert = conn.prepareStatement("insert into CustomerAccount(accountId, customerId) VALUES(?,?)");
+		psInsert.setInt(1, accountId);
+		psInsert.setInt(2, customerId);
 
-			psInsert.setInt(1, accountId);
-			psInsert.setInt(2, customerId);
+		psInsert.executeUpdate();
 
-			psInsert.executeUpdate();
-
-			conn.commit();
-
-		} catch (SQLException e) {
-			printSQLException(e);
-			return false;
-		}
-
-		return true;
-
+		conn.commit();
 	}
 
-	public boolean insertAccountLoans(int accountID, int loanID) {
+	public void insertAccountLoans(int accountID, int loanID) throws Exception {
 
 		PreparedStatement psInsert = null;
 
 		if (accountID < 0 || loanID < 0)
-			return false;
+			throw new Exception("accountId or loanId is negative");
 
-		try {
+		psInsert = conn.prepareStatement("insert into AccountLoans(accountID, programID) VALUES(?,?)");
 
-			psInsert = conn.prepareStatement("insert into AccountLoans(accountID, programID) VALUES(?,?)");
+		psInsert.setInt(1, accountID);
+		psInsert.setInt(2, loanID);
 
-			psInsert.setInt(1, accountID);
-			psInsert.setInt(2, loanID);
+		psInsert.executeUpdate();
 
-			psInsert.executeUpdate();
-
-			conn.commit();
-
-		} catch (SQLException e) {
-			printSQLException(e);
-			return false;
-		}
-
-		return true;
+		conn.commit();
 	}
 
-	public boolean insertAccountSavings(int accountID, int savingID) {
+	public void insertAccountSavings(int accountID, int savingID) throws Exception {
 
 		PreparedStatement psInsert = null;
 
 		if (accountID < 0 || savingID < 0)
-			return false;
+			throw new Exception("accountId or savingId is negative");
 
-		try {
+		psInsert = conn.prepareStatement("insert into AccountSavings(accountID, programID) VALUES(?,?)");
 
-			psInsert = conn.prepareStatement("insert into AccountSavings(accountID, programID) VALUES(?,?)");
+		psInsert.setInt(1, accountID);
+		psInsert.setInt(2, savingID);
 
-			psInsert.setInt(1, accountID);
-			psInsert.setInt(2, savingID);
+		psInsert.executeUpdate();
 
-			psInsert.executeUpdate();
-
-			conn.commit();
-
-		} catch (SQLException e) {
-			printSQLException(e);
-			return false;
-		}
-
-		return true;
+		conn.commit();
 	}
 
 	@Override
 	public int insertTransaction(Transaction transaction) throws Exception {
 		if (transaction == null)
 			throw new Exception("transaction is null");
-		
+
 		int transactionID;
 		int transType = 0;
 		PreparedStatement psInsert = null;
-		psInsert = conn.prepareStatement(
-				"insert into Transactions(amount, date , transType) VALUES(?,?,?)",
+		psInsert = conn.prepareStatement("insert into Transactions(amount, date , transType) VALUES(?,?,?)",
 				new String[] { "TRANSACTIONID" });
-		if(transaction instanceof SavingTransaction)
-		{
-			transType = 3;
-		}
-		else if(transaction instanceof LoanTransaction)
-		{
+		if (transaction instanceof SavingTransaction) {
+			transType = SAVING_TRANS_ID;
+		} else if (transaction instanceof LoanTransaction) {
 			transType = LOAN_TRANS_ID;
-		}
-		else if(transaction instanceof SameBankTransfer)
-		{
+		} else if (transaction instanceof SameBankTransfer) {
 			transType = SAME_BANK_TRANS_ID;
-		}
-		else if(transaction instanceof OtherBankTransfer)
-		{
+		} else if (transaction instanceof OtherBankTransfer) {
 			transType = OTHER_BANK_ID;
 		}
-		
+
 		psInsert.setFloat(1, transaction.getAmount());
 		psInsert.setString(2, transaction.getTransactionDate().formatDate());
 		psInsert.setInt(3, transType);
@@ -401,24 +319,23 @@ public class DataBaseService implements DatabaseInterface {
 		rs.next();
 
 		transactionID = rs.getInt(1);
-		
-		switch(transType)
-		{
+
+		switch (transType) {
 		case LOAN_TRANS_ID:
 		default:
-			OtherBankTransfer otherBankTransfer = (OtherBankTransfer)transaction;
+			OtherBankTransfer otherBankTransfer = (OtherBankTransfer) transaction;
 			psInsert = conn.prepareStatement("insert into Transactions(amount, date , transType) VALUES(?,?,?)");
 			break;
 		case OTHER_BANK_ID:
-			SameBankTransfer sameBankTransfer = (SameBankTransfer)transaction;
+			SameBankTransfer sameBankTransfer = (SameBankTransfer) transaction;
 			psInsert = conn.prepareStatement("insert into Transactions(amount, date , transType) VALUES(?,?,?)");
 			break;
 		case SAME_BANK_TRANS_ID:
-			LoanTransaction loanTransaction = (LoanTransaction)transaction;
+			LoanTransaction loanTransaction = (LoanTransaction) transaction;
 			psInsert = conn.prepareStatement("insert into Transactions(amount, date , transType) VALUES(?,?,?)");
 			break;
 		case SAVING_TRANS_ID:
-			SavingTransaction savingTransaction = (SavingTransaction)transaction;
+			SavingTransaction savingTransaction = (SavingTransaction) transaction;
 			psInsert = conn.prepareStatement("insert into Transactions(amount, date , transType) VALUES(?,?,?)");
 			break;
 		}
@@ -429,147 +346,69 @@ public class DataBaseService implements DatabaseInterface {
 
 	}
 
-	public boolean updateAccountBalanceByID(float amount, int id) {
-
-		PreparedStatement psUpdate = null;
-
+	public void updateAccountBalanceByID(float amount, int id) throws Exception {
 		if (id < 0)
-			return false;
+			throw new Exception("accountId is negative");
 
-		try {
+		PreparedStatement psUpdate = conn.prepareStatement("update account set balance=? where accountID=?");
 
-			psUpdate = conn.prepareStatement("update account set balance=? where accountID=?");
+		psUpdate.setFloat(1, amount);
+		psUpdate.setInt(2, id);
 
-			psUpdate.setFloat(1, amount);
-			psUpdate.setInt(2, id);
+		psUpdate.executeUpdate();
 
-			psUpdate.executeUpdate();
-
-			conn.commit();
-
-		} catch (SQLException e) {
-
-			printSQLException(e);
-			return false;
-		}
-		return true;
+		conn.commit();
 	}
 
 	@Override
-	public boolean updateBankNumber(int bankNumber) {
-
-		try {
-
-			RandomAccessFile raf = new RandomAccessFile(new File("myBank"), "rw");
-
-			raf.writeInt(bankNumber);
-
-			raf.close();
-
-		} catch (IOException e) {
-
-			e.printStackTrace();
-			return false;
-		}
-
-		return true;
-
+	public void updateBankNumber(int bankNumber) throws IOException {
+		RandomAccessFile raf = new RandomAccessFile(new File(BANK_FILE_NAME), "rw");
+		raf.seek(BANK_ID_POS);
+		raf.writeInt(bankNumber);
+		raf.close();
 	}
 
 	@Override
-	public boolean updateBankName(String bankName) {
-
-		try {
-
-			RandomAccessFile raf = new RandomAccessFile(new File("myBank"), "rw");
-
-			raf.readInt();
-
-			raf.writeUTF(bankName);
-
-			raf.close();
-
-		} catch (IOException e) {
-
-			e.printStackTrace();
-			return false;
-		}
-
-		return true;
+	public void updateBankName(String bankName) throws IOException {
+		RandomAccessFile raf = new RandomAccessFile(new File(BANK_FILE_NAME), "rw");
+		raf.setLength(Integer.BYTES + Float.BYTES * 2);
+		raf.seek(BANK_NAME_POS);
+		raf.writeUTF(bankName);
+		raf.close();
 	}
 
 	@Override
-	public boolean updateBankLoanInterest(float interest) {
+	public void updateBankLoanInterest(float interest) throws IOException {
+		RandomAccessFile raf = new RandomAccessFile(new File(BANK_FILE_NAME), "rw");
+		raf.seek(BANK_LOAN_INTREST_POS);
+		raf.writeFloat(interest);
 
-		try {
-
-			RandomAccessFile raf = new RandomAccessFile(new File("myBank"), "rw");
-
-			raf.readInt();
-			raf.readUTF();
-
-			raf.writeFloat(interest);
-
-			raf.close();
-
-		} catch (IOException e) {
-
-			e.printStackTrace();
-			return false;
-		}
-
-		return true;
+		raf.close();
 	}
 
 	@Override
-	public boolean updateBankSavingInterest(float interest) {
+	public void updateBankSavingInterest(float interest) throws IOException {
+		RandomAccessFile raf = new RandomAccessFile(new File(BANK_FILE_NAME), "rw");
+		raf.seek(BANK_SAVING_INTREST_POS);
+		raf.writeFloat(interest);
 
-		try {
-
-			RandomAccessFile raf = new RandomAccessFile(new File("myBank"), "rw");
-
-			raf.readInt();
-			raf.readUTF();
-			raf.readFloat();
-
-			raf.writeFloat(interest);
-
-			raf.close();
-
-		} catch (IOException e) {
-
-			e.printStackTrace();
-			return false;
-		}
-
-		return true;
+		raf.close();
 	}
 
 	@Override
-	public Bank getBank() {
-
+	public Bank getBank() throws IOException {
 		int bankNumber;
 		String bankName;
 		float loanInterest, savingInterest;
+		RandomAccessFile raf = new RandomAccessFile(new File(BANK_FILE_NAME), "r");
 
-		try {
+		bankNumber = raf.readInt();
+		savingInterest = raf.readFloat();
+		loanInterest = raf.readFloat();
+		bankName = raf.readUTF();
+		raf.close();
 
-			RandomAccessFile raf = new RandomAccessFile(new File("myBank"), "r");
-
-			bankNumber = raf.readInt();
-			bankName = raf.readUTF();
-			loanInterest = raf.readFloat();
-			savingInterest = raf.readFloat();
-
-			raf.close();
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
 		return new Bank(bankNumber, bankName, loanInterest, savingInterest);
-
 	}
 
 	@Override
@@ -640,112 +479,79 @@ public class DataBaseService implements DatabaseInterface {
 	}
 
 	@Override
-	public Set<Account> getAccountsByCustomerID(int id) {
+	public Set<Account> getAccountsByCustomerID(int id) throws SQLException {
 
 		Set<Account> acc = new LinkedHashSet<>();
 		ResultSet rs = null;
 		PreparedStatement psGet = null;
 
-		try {
+		psGet = conn.prepareStatement(" select account.account_id, balance " + " from Account, Customer_Account "
+				+ " where customer_Account.customer_id=(?) AND Customer_Account.account_id = Account.account_id");
+		psGet.setInt(1, id);
 
-			psGet = conn.prepareStatement("select account.accountid, balance from Account, CustomerAccount "
-					+ "where customerAccount.customerid=(?) AND CustomerAccount.accountid = Account.accountid");
-			psGet.setInt(1, id);
+		rs = psGet.executeQuery();
 
-			rs = psGet.executeQuery();
-
-			while (!rs.next())
-				acc.add(new Account(rs.getInt(1), rs.getFloat(2)));
-
-		} catch (SQLException e) {
-			printSQLException(e);
-			return null;
-		}
+		while (!rs.next())
+			acc.add(new Account(rs.getInt(1), rs.getFloat(2)));
 
 		return acc;
 	}
 
 	@Override
-	public Set<Customer> getCustomersByAccountID(int id) {
-
+	public Set<Customer> getCustomersByAccountID(int id) throws SQLException {
 		Set<Customer> cust = new LinkedHashSet<>();
-		ResultSet rs = null;
-		PreparedStatement psGet = null;
 
-		try {
+		PreparedStatement psGet = conn.prepareStatement("select Customer.customer_id, name, surname "
+				+ " from Customer, CustomerAccount " + " where customerAccount.accountid=(?) AND "
+				+ " CustomerAccount.customerID = Customer.customerID");
 
-			psGet = conn.prepareStatement("select Customer.customerid, name, surname from Customer, CustomerAccount "
-					+ "where customerAccount.accountid=(?) AND CustomerAccount.customerID = Customer.customerID");
+		psGet.setInt(1, id);
 
-			psGet.setInt(1, id);
+		ResultSet rs = psGet.executeQuery();
 
-			rs = psGet.executeQuery();
-
-			while (!rs.next())
-				cust.add(new Customer(rs.getInt(1), rs.getString(2) + " " + rs.getString(3)));
-
-		} catch (SQLException e) {
-			printSQLException(e);
-			return null;
-		}
+		while (!rs.next())
+			cust.add(new Customer(rs.getInt(1), rs.getString(2) + " " + rs.getString(3)));
 
 		return cust;
 	}
 
 	@Override
-	public Set<Loan> getLoansByAccountID(int id) {
+	public Set<Loan> getLoansByAccountID(int id) throws SQLException {
 
 		Set<Loan> loan = new LinkedHashSet<>();
-		ResultSet rs = null;
-		PreparedStatement psGet = null;
 
-		try {
+		PreparedStatement psGet = conn
+				.prepareStatement(" select Loan.loan_ID, amount, start_date, final_date " + " from Loan, account_Loans "
+						+ " where account_loans.account_id=(?) AND " + " Loans.loan_ID = account_Loans.loan_ID");
 
-			psGet = conn
-					.prepareStatement("select Loans.programID, amount, startdate, finaldate from Loans, accountLoans "
-							+ "where accountloans.accountid=(?) AND Loans.programID = accountLoans.programID");
+		psGet.setInt(1, id);
 
-			psGet.setInt(1, id);
+		ResultSet rs = psGet.executeQuery();
 
-			rs = psGet.executeQuery();
-
-			while (!rs.next())
-				loan.add(new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-						Date.getDateFromString(rs.getString(4))));
-
-		} catch (SQLException e) {
-			printSQLException(e);
-			return null;
-		}
+		while (!rs.next())
+			loan.add(new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
+					Date.getDateFromString(rs.getString(4))));
 
 		return loan;
 	}
 
 	@Override
-	public Set<Savings> getSavingByAccountID(int id) {
+	public Set<Saving> getSavingByAccountID(int id) throws SQLException {
 
-		Set<Savings> savings = new LinkedHashSet<>();
-		ResultSet rs = null;
-		PreparedStatement psGet = null;
+		Set<Saving> savings = new LinkedHashSet<>();
 
-		try {
+		PreparedStatement psGet = conn
+				.prepareStatement(" select Saving.saving_ID, monthly_Deposit, start_date, final_date "
+						+ " from Savings, account_Savings " + " where account_Savings.account_id=(?) "
+						+ " AND Savings.saving_ID = account_Savings.saving_ID");
 
-			psGet = conn.prepareStatement(
-					"select Savings.programID, monthlyDeposit, startdate, finaldate from Savings, accountSavings "
-							+ "where accountSavings.accountid=(?) AND Savings.programID = accountSavings.programID");
+		psGet.setInt(1, id);
 
-			psGet.setInt(1, id);
+		ResultSet rs = psGet.executeQuery();
 
-			rs = psGet.executeQuery();
-
-			while (!rs.next())
-				savings.add(new Savings(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-						Date.getDateFromString(rs.getString(4))));
-
-		} catch (SQLException e) {
-			printSQLException(e);
-			return null;
-		}
+		while (!rs.next())
+			savings.add(new Saving(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
+					Date.getDateFromString(rs.getString(4))));
 
 		return savings;
 	}
@@ -757,10 +563,8 @@ public class DataBaseService implements DatabaseInterface {
 		ResultSet rs = null;
 		PreparedStatement psGet = null;
 
-		try {
-
 			psGet = conn
-					.prepareStatement("Select transactionID from Transactions where sourceID = (?) OR destinationID = (?)"); /// not good the transaction most include bank number
+					.prepareStatement("Select transaction_ID , trans_type from Transactions where account_id = (?)"); /// not good the transaction most include bank number
 
 			psGet.setInt(1, id);
 
@@ -768,17 +572,37 @@ public class DataBaseService implements DatabaseInterface {
 
 			while (!rs.next())
 			{
-				PreparedStatement preparedStatement = conn.prepareStatement("select Transction.transactionID , amount , )
-				transactions.add(new Transaction(rs.getInt(1), rs.getFloat(2),
-						rs.getString(3), rs.getInt(4), rs.getInt(5)));
+				PreparedStatement preparedStatement = conn.prepareStatement("select Transction.transaction_ID , amount , ")
+				transactions.add(new Transaction(rs.getInt(1), rs.getFloat(2), rs.getInt(1)));
 			}
-
-		} catch (SQLException e) {
-			printSQLException(e);
-			return null;
-		}
-
+			
 		return transactions;
+	}
+	
+	@Override
+	public Transaction getTransactionById(int id) {
+		
+	}
+
+	@Override
+	public Loan getLoanById(int id) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement(
+				" select loan_id , amount , start_Date , final_Date " + 
+				" from loan where loan_id = " + id);
+		ResultSet rs = statement.executeQuery();
+		rs.next();
+		return new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)), Date.getDateFromString(rs.getString(4)));
+	}
+
+	@Override
+	public Saving getSavingById(int id) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement(
+				" select saving_id , monthly_Deposit , start_Date, final_Date" +
+				" from saving where saving_id = " + id);
+		
+		ResultSet rs = statement.executeQuery();
+		rs.next();
+		return new Saving(rs.getInt(1), rs.getFloat(2)	, Date.getDateFromString(rs.getString(3)), Date.getDateFromString(rs.getString(4)));
 	}
 
 }
