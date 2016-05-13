@@ -9,9 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 public class MainMenu extends JFrame {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public MainMenu() {
@@ -21,39 +18,39 @@ public class MainMenu extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		JButton btnBalance = new JButton("Balance");
 		btnBalance.setBounds(20, 25, 159, 31);
 		contentPane.add(btnBalance);
-		
+
 		JButton btnLoans = new JButton("Loans");
 		btnLoans.setBounds(20, 67, 159, 31);
 		contentPane.add(btnLoans);
 		btnLoans.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				new LoanDialog();
 			}
 		});
-		
+
 		JButton btnSavings = new JButton("Savings");
 		btnSavings.setBounds(20, 109, 159, 31);
 		contentPane.add(btnSavings);
-		
+
 		JButton btnWidthrawdeposit = new JButton("widthraw/deposit");
 		btnWidthrawdeposit.setBounds(20, 151, 159, 31);
 		contentPane.add(btnWidthrawdeposit);
 		btnWidthrawdeposit.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
 				new WidthrawDepositFrame();
 			}
 		});
-		
+
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setVisible(true);

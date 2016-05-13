@@ -16,32 +16,35 @@ public class DataBaseInstall {
 	private static Statement s;
 	private static String protocol = "jdbc:derby:";
 
-	String table[] = {"OtherBankTransfer", "MonthlyTransaction", "Transactions","AccountSavings", "AccountLoans",
-			"Savings", "Loans", "CustomerAccount",  "Customer", "Account",};
+	String table[] = { "Other_BankTransfer", "Monthly_Transaction",
+			"Transactions", "Account_Savings", "Account_Loans", "Savings",
+			"Loans", "Customer_Account", "Customer", "Account", "Same_Bank_transfer" , "Saving_transfer" , "loan_transfer"};
 
 	String query[] = {
 			"Account(accountID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 100, INCREMENT BY 1), balance float NOT NULL, PRIMARY KEY (accountID))",
 
-			"Customer(customerID int NOT NULL, name varchar(20), surname varchar(20),  PRIMARY KEY (customerID))",
+			"Customer(customerID int NOT NULL, name varchar(40),  PRIMARY KEY (customerID))",
 
-			"CustomerAccount (accountID int NOT NULL, customerID int NOT NULL, FOREIGN KEY (customerID) REFERENCES Customer(customerID)  , FOREIGN KEY (accountID) REFERENCES Account(accountID))",
-			
-			"Loans(programID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 200, INCREMENT BY 1), amount float, startDate varchar(12), finalDate varchar(12), PRIMARY KEY (programID))",
+			"Customer_Account (accountID int NOT NULL, customerID int NOT NULL, FOREIGN KEY (customerID) REFERENCES Customer(customerID)  , FOREIGN KEY (accountID) REFERENCES Account(accountID))",
 
-			"Savings(programID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 300, INCREMENT BY 1), monthlyDeposit float NOT NULL, startDate varchar(12), finalDate varchar(12), PRIMARY KEY (programID))",
-			
-			"AccountLoans(accountID int, programID int, FOREIGN KEY (accountID) REFERENCES Account(accountID), FOREIGN KEY (programID) REFERENCES Loans (programID))",
-			
-			"AccountSavings(accountID int, programID int, FOREIGN KEY (accountID) REFERENCES Account(accountID), FOREIGN KEY (programID) REFERENCES Savings (programID))",
-			
-			"Transactions(transactionID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 400, INCREMENT BY 1), amount float, Date varchar(12), sourceID int, destinationID int, PRIMARY KEY (transactionID))", // account exists rely on logic
+			"Loan(loan_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 200, INCREMENT BY 1), amount float, startDate varchar(12), finalDate varchar(12), PRIMARY KEY (programID))",
 
-			"MonthlyTransaction(transactionID int, typeID int, type varchar(10), FOREIGN KEY (transactionID) REFERENCES Transactions (transactionID))",   // type (loan or saving) rely on logic
+			"Saving(saving_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 300, INCREMENT BY 1), monthlyDeposit float NOT NULL, startDate varchar(12), finalDate varchar(12), PRIMARY KEY (programID))",
+
+			"Account_Loans(accountID int, programID int, FOREIGN KEY (accountID) REFERENCES Account(accountID), FOREIGN KEY (programID) REFERENCES Loans (programID))",
+
+			"Account_Savings(accountID int, programID int, FOREIGN KEY (accountID) REFERENCES Account(accountID), FOREIGN KEY (programID) REFERENCES Savings (programID))",
+
+			"Transactions(transactionID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 400, INCREMENT BY 1), amount float, Date varchar(12), transType int , PRIMARY KEY (transactionID))",
+
+			"Same_Bank_Transfer(transactionID int, typeID int, type varchar(10), FOREIGN KEY (transactionID) REFERENCES Transactions (transactionID))",
+
+			"Other_Bank_Transfer(transactionID int, transferID int , transType, FOREIGN KEY (transactionID) REFERENCES Transactions (transactionID))", 
 			
-			"OtherBankTransfer(transactionID int, transferID int, FOREIGN KEY (transactionID) REFERENCES Transactions (transactionID))",
-	
+			"Saving_transfer(transactionID int , saving_id int , FOREIGN KEY (transactionID) REFERENCES Transactions (transactionID) , FOREIGN KEY (saving_id) REFERENCES Saving (saving_ID)",
 			
-			 };
+			"Loan_transfer(transactionID int , loan_id int , FOREIGN KEY (transactionID) REFERENCES Transactions (transactionID) , FOREIGN KEY (loan_id) REFERENCES loan (loan_ID)",
+	};
 
 	public DataBaseInstall(String dbName) {
 		DataBaseInstall.dbName = dbName;
@@ -77,18 +80,17 @@ public class DataBaseInstall {
 			System.out.println("Creates tables");
 
 			for (int i = 0; i < table.length; i++) {
-				try {
-					dropTable(table[i]);
-				} catch (SQLException e) {
-					System.out.println(table[i] + " Does not exist");
-				}
+				dropTable(table[i]);
 			}
 
 			for (int i = 0; i < query.length; i++) {
-				System.out.println("Creates Table "+table[(table.length-1)-i]);
+				System.out.println("Creates Table "
+						+ table[(table.length - 1) - i]);
 				createTable(query[i]);
-				System.out.println("Table " + table[(table.length-1)-i] + " was created successfuly");
+				System.out.println("Table " + table[(table.length - 1) - i]
+						+ " was created successfuly");
 			}
+
 			System.out.println("Committed the transaction");
 
 		} catch (SQLException e) {
@@ -98,19 +100,26 @@ public class DataBaseInstall {
 		}
 	}
 
-	public static void createTable(String query) throws SQLException {
+	public static void createTable(String query) {
 
-		s = conn.createStatement();
-		s.execute("create table " + query);
-		conn.commit();
+		try {
+			s = conn.createStatement();
+			s.execute("create table " + query);
+			conn.commit();
+		} catch (SQLException e) {
+
+		}
 	}
 
-	public static void dropTable(String query) throws SQLException {
+	public static void dropTable(String query) {
 
-		s = conn.createStatement();
-		;
-		s.execute("drop table " + query);
-		conn.commit();
+		try {
+			s = conn.createStatement();
+			s.execute("drop table " + query);
+			conn.commit();
+		} catch (SQLException e) {
+
+		}
 
 	}
 

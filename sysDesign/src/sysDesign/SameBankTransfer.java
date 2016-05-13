@@ -1,19 +1,27 @@
 package sysDesign;
 
+import DBManegment.DataBaseService;
+import DBManegment.DatabaseInterface;
+
 public class SameBankTransfer extends Transaction {
 
+	int sourceAccountNumber;
+	int destenationAccountNumber;
+	
 	public SameBankTransfer(float amount, Date transactionDate, int sourceAccountNumber, int destenationAccountNumber) {
-		super(amount, transactionDate, sourceAccountNumber, destenationAccountNumber);
-		// TODO Auto-generated constructor stub
+		super(amount, transactionDate);
+		this.sourceAccountNumber = sourceAccountNumber;
+		this.destenationAccountNumber = destenationAccountNumber;
 	}
-
-	public SameBankTransfer(float amount, int day, int month, int year, int sourceAccountNumber,
-			int destenationAccountNumber) {
-		super(amount, day, month, year, sourceAccountNumber, destenationAccountNumber);
-		// TODO Auto-generated constructor stub
+	
+	public Account getSourceAccount() {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		return db.getAccountByID(sourceAccountNumber);
 	}
-
 	
-	
+	public Account getDestinationAccount() {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		return db.getAccountByID(destenationAccountNumber);
+	}
 	
 }

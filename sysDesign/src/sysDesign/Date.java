@@ -37,16 +37,16 @@ public class Date {
 		if(year>=2016)
 		this.year = year;
 	}
-	@Override
-	public String toString() {
-		return  day + "" + month + "" + year ;
+	
+	public String  name() {
+		return day + "/" + month + "/" + year;
 	}
 	
-	public String getDate(){
-		return this.toString();
+	public String formatDate() {
+		return  String.format("%2d%2d%4d", day , month , year);
 	}
 	
-	public Date getDateFromString(String str){
+	public static Date getDateFromString(String str){
 		int day =Integer.parseInt("" + str.charAt(0) + (str.charAt(1)));
 		int month =Integer.parseInt("" + str.charAt(2) + (str.charAt(3)));
 		int year =Integer.parseInt("" + str.charAt(4) + (str.charAt(5))+ str.charAt(6) + (str.charAt(7)));
