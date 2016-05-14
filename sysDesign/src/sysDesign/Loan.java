@@ -54,6 +54,12 @@ public class Loan {
 		db.updateLoan(loanId , amount , firstPaymentDate , finalDate);
 	}
 	
+	@Override
+	public String toString() {
+		return "Loan [amount=" + amount + ", finalDate=" + finalDate + ", firstPaymentDate=" + firstPaymentDate
+				+ ", loanId=" + loanId + "]";
+	}
+
 	public void setAmount(float amount) throws SQLException {
 		this.amount = amount;
 		

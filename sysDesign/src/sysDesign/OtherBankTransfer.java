@@ -29,6 +29,12 @@ public class OtherBankTransfer extends Transaction {
 		this.destinationBank = destinationBank;
 	}
 	
+	@Override
+	public String toString() {
+		return "OtherBankTransfer [" + super.toString() + ", sourceAccuntId=" + sourceAccuntId + ", sourceBank=" + sourceBank
+				+ ", destinationAccuntId=" + destinationAccuntId + ", destinationBank=" + destinationBank + "]";
+	}
+
 	public int getSourceAccuntId() {
 		return sourceAccuntId;
 	}

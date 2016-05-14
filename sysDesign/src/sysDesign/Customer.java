@@ -43,6 +43,11 @@ public class Customer {
 		return DataBaseService.getDataBaseService().getAccountsByCustomerID(customerId);
 	}
 
+	@Override
+	public String toString() {
+		return "Customer [customerId=" + customerId + ", customerName=" + customerName + "]";
+	}
+
 	public void addAccount(Account acc) throws Exception {
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		db.insertBindCustomerAccount(acc.getAccountId(), customerId);

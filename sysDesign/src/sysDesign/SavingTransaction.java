@@ -5,6 +5,11 @@ import DBManegment.DatabaseInterface;
 
 public class SavingTransaction extends MonthlyTransaction {
 
+	@Override
+	public String toString() {
+		return "SavingTransaction [" + super.toString() + ", saving=" + saving + "]";
+	}
+
 	private int saving;
 	
 	public SavingTransaction(float amount, Date transactionDate , int accountId , int paymentNumber, Date finalDate , int saving) throws Exception {

@@ -19,6 +19,12 @@ public class Bank {
 		return thisBank;
 	}
 	
+	@Override
+	public String toString() {
+		return "Bank [bankNumber=" + bankNumber + ", bankName=" + bankName + ", loanIntrest=" + loanIntrest
+				+ ", savingIntrest=" + savingIntrest + "]";
+	}
+
 	public Bank(int bankNumber , String bankName , float loanIntrest , float savingIntrest) {
 		this.bankName = bankName;
 		this.bankName = bankName;

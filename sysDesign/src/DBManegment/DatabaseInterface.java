@@ -1,6 +1,7 @@
 package DBManegment;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public interface DatabaseInterface {
 
 	public Bank getBank() throws IOException;
 
-	public Account getAccountByID(int id) throws SQLException;
+	public Account getAccountByID(int id) throws Exception;
 
 	public Customer getCustomerByID(int id) throws Exception;
 
@@ -68,4 +69,8 @@ public interface DatabaseInterface {
 	public void updateLoan(int loanId, float amount, Date firstPaymentDate, Date finalDate) throws SQLException;
 
 	public void updateSaving(int savingId, float monthlyPaymentNumber, Date startSavingDate, Date finalSavingsDate) throws SQLException;
+	
+	public void DisconnectDataBase();
+	
+	public ResultSet queryTest(String sql) throws SQLException;
 }

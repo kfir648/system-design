@@ -56,4 +56,9 @@ public class Date implements Cloneable{
 	{
 		return new Date(day , month , year);
 	}
+
+	@Override
+	public String toString() {
+		return day + "/" + month + "/" + year;
+	}
 }

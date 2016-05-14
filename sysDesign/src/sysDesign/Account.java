@@ -1,6 +1,7 @@
 package sysDesign;
 
 import java.sql.SQLException;
+import java.util.Set;
 
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
@@ -38,5 +39,15 @@ public class Account {
 	public void addCustomer(Customer customer) throws Exception {
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		db.insertBindCustomerAccount(accountId, customer.getCustomerId());
+	}
+
+	public Set<Customer> getAllCustomers() throws Exception {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		return db.getCustomersByAccountID(accountId);
+	}
+
+	@Override
+	public String toString() {
+		return "Account [accountId=" + accountId + ", accountBalance=" + accountBalance + "]";
 	}
 }

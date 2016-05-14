@@ -40,4 +40,10 @@ public abstract class Transaction {
 			throw new Exception("id is negative");
 		transId = id;
 	}
+
+	@Override
+	public String toString() {
+		return "Transaction [transId=" + transId + ", amount=" + amount + ", transactionDate=" + transactionDate
+				+ ", accuntId=" + accuntId + "]";
+	}
 }

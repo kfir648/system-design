@@ -26,4 +26,9 @@ public class LoanTransaction extends MonthlyTransaction {
 		return loan;
 	}
 
+	@Override
+	public String toString() {
+		return "LoanTransaction [" + super.toString() + "loan=" + loan + "]";
+	}
+
 }

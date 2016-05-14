@@ -62,6 +62,12 @@ public class Saving {
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		db.updateSaving(savingId , monthlyPaymentNumber , startSavingDate , finalSavingsDate);
 	}
+
+	@Override
+	public String toString() {
+		return "Saving [savingId=" + savingId + ", monthlyPaymentNumber=" + monthlyPaymentNumber + ", startSavingDate="
+				+ startSavingDate + ", finalSavingsDate=" + finalSavingsDate + "]";
+	}
 	
 	
 	

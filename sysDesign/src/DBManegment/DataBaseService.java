@@ -131,12 +131,6 @@ public class DataBaseService implements DatabaseInterface {
 		}
 	}
 
-	private void reportFailure(String message) {
-
-		System.err.println("\nData verification failed:");
-		System.err.println('\t' + message);
-	}
-
 	@Override
 	public int insertAccount(float balance) throws SQLException {
 
@@ -149,7 +143,8 @@ public class DataBaseService implements DatabaseInterface {
 		rs.next();
 		newAccId = rs.getInt(1);
 		conn.commit();
-
+		psInsert.close();
+		rs.close();
 		return newAccId;
 	}
 
@@ -166,7 +161,7 @@ public class DataBaseService implements DatabaseInterface {
 		psInsert.setString(2, customerName);
 
 		psInsert.executeUpdate();
-
+		psInsert.close();
 		conn.commit();
 	}
 
@@ -194,9 +189,9 @@ public class DataBaseService implements DatabaseInterface {
 		rs.next();
 
 		loanID = rs.getInt(1);
-
+		psInsert.close();
 		conn.commit();
-
+		rs.close();
 		return loanID;
 
 	}
@@ -228,7 +223,8 @@ public class DataBaseService implements DatabaseInterface {
 		savingID = rs.getInt(1);
 
 		conn.commit();
-
+		psInsert.close();
+		rs.close();
 		return savingID;
 
 	}
@@ -244,7 +240,7 @@ public class DataBaseService implements DatabaseInterface {
 		psInsert.setInt(2, customerId);
 
 		psInsert.executeUpdate();
-
+		psInsert.close();
 		conn.commit();
 	}
 
@@ -261,7 +257,7 @@ public class DataBaseService implements DatabaseInterface {
 		psInsert.setInt(2, loanID);
 
 		psInsert.executeUpdate();
-
+		psInsert.close();
 		conn.commit();
 	}
 
@@ -278,7 +274,7 @@ public class DataBaseService implements DatabaseInterface {
 		psInsert.setInt(2, savingID);
 
 		psInsert.executeUpdate();
-
+		psInsert.close();
 		conn.commit();
 	}
 
@@ -314,6 +310,7 @@ public class DataBaseService implements DatabaseInterface {
 			rs.next();
 
 			transaction.setId(rs.getInt(1));
+			rs.close();
 
 			if (transType == OTHER_BANK_ID) {
 				OtherBankTransfer otherBankTransfer = (OtherBankTransfer) transaction;
@@ -371,7 +368,7 @@ public class DataBaseService implements DatabaseInterface {
 		psUpdate.setInt(2, id);
 
 		psUpdate.executeUpdate();
-
+		psUpdate.close();
 		conn.commit();
 	}
 
@@ -422,32 +419,27 @@ public class DataBaseService implements DatabaseInterface {
 		loanInterest = raf.readFloat();
 		bankName = raf.readUTF();
 		raf.close();
-
+		
 		return new Bank(bankNumber, bankName, loanInterest, savingInterest);
 	}
 
 	@Override
-	public Account getAccountByID(int id) throws SQLException {
-
+	public Account getAccountByID(int id) throws Exception {
 		float balance;
-		ResultSet rs = null;
-		PreparedStatement psGet = null;
 
-		psGet = conn.prepareStatement("select balance from account where accountid=(?)");
+		PreparedStatement psGet = conn.prepareStatement("select balance from account where account_id=(?)");
 		psGet.setInt(1, id);
 
-		rs = psGet.executeQuery();
+		ResultSet rs = psGet.executeQuery();
 
 		if (!rs.next()) {
-
-			reportFailure("No rows in ResultSet");
-			return null;
+			throw new Exception("No rows in ResultSet");
 		}
 
 		balance = rs.getFloat(1);
-
+		psGet.close();
+		rs.close();
 		return new Account(id, balance);
-
 	}
 
 	@Override
@@ -462,13 +454,15 @@ public class DataBaseService implements DatabaseInterface {
 		rs = psGet.executeQuery();
 
 		if (!rs.next()) {
-
-			reportFailure("No rows in ResultSet");
-			return null;
+			psGet.close();
+			rs.close();
+			throw new Exception("No rows in ResultSet");
 		}
 
 		name = rs.getString(1);
-
+		
+		psGet.close();
+		rs.close();
 		return new Customer(id, name);
 	}
 
@@ -480,14 +474,15 @@ public class DataBaseService implements DatabaseInterface {
 		PreparedStatement psGet = null;
 
 		psGet = conn.prepareStatement(" select account.account_id, balance " + " from Account, Customer_Account "
-				+ " where customer_Account.customer_id=(?) AND Customer_Account.account_id = Account.account_id");
+				+ " where Customer_Account.customer_id=(?) AND Customer_Account.account_id = Account.account_id");
 		psGet.setInt(1, id);
 
 		rs = psGet.executeQuery();
 
-		while (!rs.next())
+		while (rs.next())
 			acc.add(new Account(rs.getInt(1), rs.getFloat(2)));
-
+		psGet.close();
+		rs.close();
 		return acc;
 	}
 
@@ -495,17 +490,19 @@ public class DataBaseService implements DatabaseInterface {
 	public Set<Customer> getCustomersByAccountID(int id) throws Exception {
 		Set<Customer> cust = new LinkedHashSet<>();
 
-		PreparedStatement psGet = conn.prepareStatement("select Customer.customer_id, name, surname "
-				+ " from Customer, CustomerAccount " + " where customerAccount.accountid=(?) AND "
-				+ " CustomerAccount.customerID = Customer.customerID");
+		PreparedStatement psGet = conn.prepareStatement("select Customer.customer_id, name "
+				+ " from Customer, Customer_Account " + " where customer_Account.account_id=(?) AND "
+				+ " Customer_Account.customer_ID = Customer.customer_ID");
 
 		psGet.setInt(1, id);
 
 		ResultSet rs = psGet.executeQuery();
 
-		while (!rs.next())
-			cust.add(new Customer(rs.getInt(1), rs.getString(2) + " " + rs.getString(3)));
-
+		while (rs.next())
+			cust.add(new Customer(rs.getInt(1), rs.getString(2)));
+		
+		psGet.close();
+		rs.close();
 		return cust;
 	}
 
@@ -525,7 +522,9 @@ public class DataBaseService implements DatabaseInterface {
 		while (!rs.next())
 			loan.add(new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
 					Date.getDateFromString(rs.getString(4))));
-
+		
+		psGet.close();
+		rs.close();
 		return loan;
 	}
 
@@ -546,7 +545,9 @@ public class DataBaseService implements DatabaseInterface {
 		while (!rs.next())
 			savings.add(new Saving(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
 					Date.getDateFromString(rs.getString(4))));
-
+		
+		psGet.close();
+		rs.close();
 		return savings;
 	}
 
@@ -567,7 +568,9 @@ public class DataBaseService implements DatabaseInterface {
 		while (!rs.next()) {
 			transactions.add(getTransactionById(rs.getInt(1), rs.getInt(2)));
 		}
-
+		
+		psGet.close();
+		rs.close();
 		return transactions;
 	}
 
@@ -578,13 +581,15 @@ public class DataBaseService implements DatabaseInterface {
 
 		ResultSet rs = statement.executeQuery();
 		rs.next();
+		statement.close();
+		rs.close();
 		return getTransactionById(id, rs.getInt(1));
 	}
 
 	private Transaction getTransactionById(int id, int type) throws Exception {
 		Transaction trans = null;
-		PreparedStatement statement;
-		ResultSet rs;
+		PreparedStatement statement = null;
+		ResultSet rs = null;
 		String startStat = "select Transactions.transaction_id , amount , Date , account_id ,";
 		String mounthly = " payment_Number , final_Date , ";
 		String where = "where transaction_id = ";
@@ -623,6 +628,10 @@ public class DataBaseService implements DatabaseInterface {
 					rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8));
 			break;
 		}
+		if(statement != null)
+			statement.close();
+		if(rs != null)
+			rs.close();
 		return trans;
 	}
 
@@ -632,8 +641,12 @@ public class DataBaseService implements DatabaseInterface {
 				" select loan_id , amount , start_Date , final_Date " + " from loan where loan_id = " + id);
 		ResultSet rs = statement.executeQuery();
 		rs.next();
-		return new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
+		
+		statement.close();
+		Loan loan = new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
 				Date.getDateFromString(rs.getString(4)));
+		rs.close();
+		return loan;
 	}
 
 	@Override
@@ -644,8 +657,12 @@ public class DataBaseService implements DatabaseInterface {
 
 		ResultSet rs = statement.executeQuery();
 		rs.next();
-		return new Saving(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
+		
+		statement.close();
+		Saving saving = new Saving(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
 				Date.getDateFromString(rs.getString(4)));
+		rs.close();
+		return saving;
 	}
 
 	@Override
@@ -662,7 +679,7 @@ public class DataBaseService implements DatabaseInterface {
 				+ ",final_Date = " + finalDate.formatDate()
 				+ " where loan_id = " + loanId);
 		statement.executeQuery();
-		
+		statement.close();
 	}
 
 	@Override
@@ -673,6 +690,15 @@ public class DataBaseService implements DatabaseInterface {
 				+ ",final_Date = " + finalSavingsDate.formatDate()
 				+ " where saving_id = " + savingId);
 		statement.executeQuery();	
+		statement.close();
+	}
+
+	@Override
+	public ResultSet queryTest(String sql) throws SQLException {
+		PreparedStatement psGet = conn.prepareStatement(sql);
+		ResultSet rs = psGet.executeQuery();
+		psGet.close();
+		return rs;
 	}
 
 }
