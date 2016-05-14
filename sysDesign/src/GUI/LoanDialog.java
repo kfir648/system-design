@@ -8,10 +8,6 @@ import java.awt.event.KeyListener;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-import org.apache.derby.iapi.services.loader.InstanceGetter;
 
 import com.toedter.calendar.JCalendar;
 
@@ -20,7 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 
 public class LoanDialog extends JDialog {
-
+	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
 	private JTextField tfAmount;
 	private JTextField tfPayments;

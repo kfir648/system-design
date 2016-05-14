@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Sat May 14 00:51:39 IDT 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0154-ac1a-8368-000003370d08 
-on database directory C:\Users\lior\Documents\system-design\sysDesign\myBank with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
+Sat May 14 10:31:31 IDT 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0154-ae2d-6690-0000032e1398 
+on database directory C:\Users\lior\Documents\system-design\sysDesign\myBank with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
 Loaded from file:/C:/Users/lior/Documents/system-design/sysDesign/derbyDB/derby.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_91-b14

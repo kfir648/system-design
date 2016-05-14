@@ -1,11 +1,9 @@
 package sysDesign;
 
-import java.sql.SQLException;
-
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
 
-public class SavingTransaction extends monthlyTransaction {
+public class SavingTransaction extends MonthlyTransaction {
 
 	private int saving;
 	

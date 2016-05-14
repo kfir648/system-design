@@ -1,5 +1,4 @@
 package sysDesign;
-
 import java.sql.SQLException;
 
 import DBManegment.DataBaseService;
@@ -33,11 +32,11 @@ public class Loan {
 	}
 
 	public Date getFinalDate() {
-		return finalDate;
+		return finalDate.clone();
 	}
 	
 	public Date getFirstPaymentDate() {
-		return firstPaymentDate;
+		return firstPaymentDate.clone();
 	}
 	
 	public int getMonthlyPaymentNumber() {
@@ -48,16 +47,25 @@ public class Loan {
 		return loanId;
 	}
 	
-	public void setFirstPaymentDate(Date firstPaymentDate) {
-		this.firstPaymentDate = firstPaymentDate;
+	public void setFirstPaymentDate(Date firstPaymentDate) throws SQLException {
+		this.firstPaymentDate = firstPaymentDate.clone();
+		
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		db.updateLoan(loanId , amount , firstPaymentDate , finalDate);
 	}
 	
-	public void setAmount(float amount) {
+	public void setAmount(float amount) throws SQLException {
 		this.amount = amount;
+		
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		db.updateLoan(loanId , amount , firstPaymentDate , finalDate);
 	}
 	
-	public void setFinalDate(Date finalDate) {
-		this.finalDate = finalDate;
+	public void setFinalDate(Date finalDate) throws SQLException {
+		this.finalDate = finalDate.clone();
+		
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		db.updateLoan(loanId , amount , firstPaymentDate , finalDate);
 	}
 	
 }

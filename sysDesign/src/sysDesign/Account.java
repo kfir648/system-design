@@ -34,4 +34,9 @@ public class Account {
 	public int getAccountId() {
 		return accountId;
 	}
+
+	public void addCustomer(Customer customer) throws Exception {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		db.insertBindCustomerAccount(accountId, customer.getCustomerId());
+	}
 }

@@ -6,7 +6,9 @@ import java.awt.event.KeyEvent;
 import javax.swing.JTextField;
 
 public class DoubleJTextField extends JTextField {
-    public DoubleJTextField(){
+	private static final long serialVersionUID = 1L;
+
+	public DoubleJTextField(){
         addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
                 char ch = e.getKeyChar();

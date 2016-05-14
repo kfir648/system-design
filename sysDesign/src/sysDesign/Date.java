@@ -1,12 +1,10 @@
 package sysDesign;
 
-public class Date {
+public class Date implements Cloneable{
 
 	int day;
 	int month;
 	int year;
-	
-	
 
 	public Date(int day, int month, int year) {
 		setDay(day);
@@ -51,5 +49,11 @@ public class Date {
 		int month =Integer.parseInt("" + str.charAt(2) + (str.charAt(3)));
 		int year =Integer.parseInt("" + str.charAt(4) + (str.charAt(5))+ str.charAt(6) + (str.charAt(7)));
 		return new Date(day,month,year);
+	}
+	
+	@Override
+	public Date clone()
+	{
+		return new Date(day , month , year);
 	}
 }

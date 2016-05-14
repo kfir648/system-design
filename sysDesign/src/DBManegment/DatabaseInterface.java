@@ -1,6 +1,5 @@
 package DBManegment;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
@@ -8,6 +7,7 @@ import java.util.Set;
 import sysDesign.Account;
 import sysDesign.Bank;
 import sysDesign.Customer;
+import sysDesign.Date;
 import sysDesign.Loan;
 import sysDesign.Saving;
 import sysDesign.Transaction;
@@ -19,9 +19,9 @@ public interface DatabaseInterface {
 	public void insertCustomer(int customerId, String customerName) throws Exception;
 
 	public int insertLoan(float amount, sysDesign.Date startDate,
-			sysDesign.Date finalDate) throws Exception; // a program of loan
+			sysDesign.Date finalDate) throws Exception;
 
-	public int insertSaving(float monthlyDeposit, sysDesign.Date startDate, sysDesign.Date finalDate) throws Exception; // a program of saving
+	public int insertSaving(float monthlyDeposit, sysDesign.Date startDate, sysDesign.Date finalDate) throws Exception;
 	
 	public void insertBindCustomerAccount(int accountId, int customerId) throws Exception;
 
@@ -45,11 +45,11 @@ public interface DatabaseInterface {
 
 	public Account getAccountByID(int id) throws SQLException;
 
-	public Customer getCustomerByID(int id) throws SQLException;
+	public Customer getCustomerByID(int id) throws Exception;
 
 	public Set<Account> getAccountsByCustomerID(int id) throws SQLException;
 
-	public Set<Customer> getCustomersByAccountID(int id) throws SQLException;
+	public Set<Customer> getCustomersByAccountID(int id) throws Exception;
 
 	public Set<Loan> getLoansByAccountID(int id) throws SQLException;
 
@@ -62,4 +62,10 @@ public interface DatabaseInterface {
 	public Loan getLoanById(int id) throws SQLException;
 	
 	public Saving getSavingById(int id) throws SQLException;
+
+	public void updateCustomer(int customeriD, String customerName) throws SQLException;
+
+	public void updateLoan(int loanId, float amount, Date firstPaymentDate, Date finalDate) throws SQLException;
+
+	public void updateSaving(int savingId, float monthlyPaymentNumber, Date startSavingDate, Date finalSavingsDate) throws SQLException;
 }

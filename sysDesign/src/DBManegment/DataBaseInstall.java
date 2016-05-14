@@ -150,10 +150,8 @@ public class DataBaseInstall {
 			
 			System.out.println("\n------------------------------Create all the tables------------------------------------");
 			for (int i = 0; i < query.length; i++) {
-				System.out.println("Creates Table " + table[table.length - 1 - i]);
+				System.out.print("Creates Table " + table[table.length - 1 - i]);
 				createTable(query[i]);
-				System.out.println("Table " + table[table.length - 1 - i]
-						+ " was created successfuly");
 			}
 
 			System.out.println("Committed the transaction");
@@ -171,9 +169,13 @@ public class DataBaseInstall {
 			s = conn.createStatement();
 			s.execute("create table " + query);
 			conn.commit();
+			System.out.println("....successfully");
 		} catch (SQLException e) {
 			if(e.getSQLState().equals("X0Y32"))
+			{
+				System.out.println("....exists");
 				return;
+			}
 			printSQLException(e);
 		}
 	}

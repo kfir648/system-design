@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
 
-public class LoanTransaction extends monthlyTransaction {
+public class LoanTransaction extends MonthlyTransaction {
 	
 	int loan;
 	
