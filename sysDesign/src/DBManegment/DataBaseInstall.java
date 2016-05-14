@@ -14,10 +14,16 @@ public class DataBaseInstall {
 	private static Statement s;
 	private static String protocol = "jdbc:derby:";
 
-	String table[] = { "Account", "Customer", "Customer_Account", "Loan", "Saving", "Account_Loans", "Account_Savings",
+	String table[] = { "Worker" ,"Account", "Customer", "Customer_Account", "Loan", "Saving", "Account_Loans", "Account_Savings",
 			"Transactions", "Same_Bank_Transfer", "Other_Bank_Transfer", "Saving_transfer", "Loan_transfer" };
 
 	String query[] = {
+			"Worker("
+					+ " user_name varchar(20),"
+					+ " passward varchar(20),"
+					+ " permission_type int"
+					+ " PRIMARY(user_name))",
+					
 			"Account(" 
 					+ " account_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1000, INCREMENT BY 1),"
 					+ " balance float NOT NULL," 

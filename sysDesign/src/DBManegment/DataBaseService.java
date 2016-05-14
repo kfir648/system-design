@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import sysDesign.*;
+import sysDesign.Worker.PermissionType;
 
 public class DataBaseService implements DatabaseInterface {
 
@@ -27,8 +28,8 @@ public class DataBaseService implements DatabaseInterface {
 																// , bankName
 	private static final int BANK_ID_POS = 0;
 	private static final int BANK_SAVING_INTREST_POS = Integer.BYTES;
-	private static final int BANK_LOAN_INTREST_POS = Float.BYTES + Integer.BYTES;
-	private static final int BANK_NAME_POS = Integer.BYTES * 2 + Float.BYTES;
+	private static final int BANK_LOAN_INTREST_POS = BANK_SAVING_INTREST_POS + Float.BYTES;
+	private static final int BANK_NAME_POS = BANK_LOAN_INTREST_POS + Float.BYTES;
 
 	private static String password;
 	private static String userName;
@@ -699,6 +700,43 @@ public class DataBaseService implements DatabaseInterface {
 		ResultSet rs = psGet.executeQuery();
 		psGet.close();
 		return rs;
+	}
+
+	public void insertWorker(Worker manager, Worker worker , PermissionType permissionType) throws Exception {
+		PermissionType permisType = getPermissions(manager);
+		if(!permisType.equals(PermissionType.BANK_MANAGER))
+			throw new Exception("Can't add new user without manager permission");
+		
+		PreparedStatement statement = conn.prepareStatement("insert into Worker(user_name , passward , permission_type) VALUES(?,?,?)");
+		statement.setString(1, worker.getUserName());
+		statement.setString(2, worker.getPassward());
+		statement.setInt(3, permissionType.getValue());
+		statement.execute();
+		statement.close();
+	}
+
+	@Override
+	public boolean conformUserName(String userName, String passward) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("select * from worker where user_name = " + userName + " AND passward = " + passward);
+		ResultSet rs = statement.executeQuery();
+		boolean out = rs.next();
+		statement.close();
+		rs.close();
+		return out;
+	}
+
+	@Override
+	public PermissionType getPermissions(Worker user) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement(
+				"select permission_type from worker "
+				+ " where user_name = " + user.getUserName() 
+				+ " And passward = " + user.getPassward());
+		ResultSet rs = statement.executeQuery();
+		rs.next();
+		PermissionType permissionType = PermissionType.values()[rs.getInt(1)];
+		statement.close();
+		rs.close();
+		return permissionType;
 	}
 
 }

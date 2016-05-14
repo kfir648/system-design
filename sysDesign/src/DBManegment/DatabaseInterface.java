@@ -12,6 +12,8 @@ import sysDesign.Date;
 import sysDesign.Loan;
 import sysDesign.Saving;
 import sysDesign.Transaction;
+import sysDesign.Worker;
+import sysDesign.Worker.PermissionType;
 
 public interface DatabaseInterface {
 
@@ -73,4 +75,10 @@ public interface DatabaseInterface {
 	public void DisconnectDataBase();
 	
 	public ResultSet queryTest(String sql) throws SQLException;
+	
+	public boolean conformUserName(String userName , String passward) throws SQLException;
+	
+	public PermissionType getPermissions(Worker user) throws SQLException;
+	
+	public void insertWorker(Worker manager, Worker worker , PermissionType permissionType) throws Exception;
 }
