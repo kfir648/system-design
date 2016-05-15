@@ -24,10 +24,16 @@ public class Worker {
 	}
 	
 	public Worker(String userName, String passward , PermissionType permission) {
-		super();
 		this.userName = userName;
 		this.passward = passward;
 		this.permission = permission;
+	}
+	
+	public Worker(String userName, String passward) throws Exception {
+		this.userName = userName;
+		this.passward = passward;
+		
+		this.permission = DataBaseService.getDataBaseService().getPermissions(this);
 	}
 	
 	public String getUserName() {
@@ -38,7 +44,7 @@ public class Worker {
 		return passward;
 	}
 	
-	public PermissionType getPermission() throws SQLException
+	public PermissionType getPermission() throws Exception
 	{
 		return DataBaseService.getDataBaseService().getPermissions(this);
 	}

@@ -38,14 +38,23 @@ public class DataBaseService implements DatabaseInterface {
 	private static final String protocol = "jdbc:derby:";
 	private static DataBaseService dbs = null;
 
-	private DataBaseService(String dbName) {
+	private DataBaseService(String dbName) throws SQLException {
 
 		new DataBaseInstall(dbName).Execute();
 		ConnectDataBase(dbName);
-
+		addFirstManager();
 	}
 
-	public static DataBaseService getDataBaseService() {
+	private void addFirstManager() throws SQLException {
+		PreparedStatement s = conn.prepareStatement("insert into worker(user_name , passward , permission_type) values(?,?,?)");
+		s.setString(1 , "lior knafo");
+		s.setString(2, "12345");
+		s.setInt(3, 0);
+		s.executeUpdate();
+		
+	}
+
+	public static DataBaseService getDataBaseService() throws SQLException {
 
 		if (dbs == null)
 			dbs = new DataBaseService("myBank");
@@ -726,13 +735,16 @@ public class DataBaseService implements DatabaseInterface {
 	}
 
 	@Override
-	public PermissionType getPermissions(Worker user) throws SQLException {
+	public PermissionType getPermissions(Worker user) throws Exception {
 		PreparedStatement statement = conn.prepareStatement(
 				"select permission_type from worker "
-				+ " where user_name = " + user.getUserName() 
-				+ " And passward = " + user.getPassward());
+				+ " where user_name = ?" 
+				+ " And passward = ?");
+		statement.setString(1, user.getUserName());
+		statement.setString(2, user.getPassward());
 		ResultSet rs = statement.executeQuery();
-		rs.next();
+		if(!rs.next())
+			throw new Exception("user name does not exists");
 		PermissionType permissionType = PermissionType.values()[rs.getInt(1)];
 		statement.close();
 		rs.close();

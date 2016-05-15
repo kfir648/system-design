@@ -19,10 +19,10 @@ public class DataBaseInstall {
 
 	String query[] = {
 			"Worker("
-					+ " user_name varchar(20),"
-					+ " passward varchar(20),"
-					+ " permission_type int"
-					+ " PRIMARY(user_name))",
+					+ " user_name varchar(20) not null,"
+					+ " passward varchar(20) not null,"
+					+ " permission_type int not null,"
+					+ " PRIMARY KEY(user_name))",
 					
 			"Account(" 
 					+ " account_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1000, INCREMENT BY 1),"
@@ -39,42 +39,67 @@ public class DataBaseInstall {
 
 			"Loan(" 
 					+ " loan_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1000, INCREMENT BY 1),"
-					+ " amount float," + " start_Date varchar(12)," + " final_Date varchar(12),"
+					+ " amount float," 
+					+ " start_Date varchar(12)," + " final_Date varchar(12),"
 					+ " PRIMARY KEY (loan_ID))",
 
 			"Saving(" 
 					+ " saving_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1000,INCREMENT BY 1),"
-					+ " monthly_Deposit float NOT NULL," + " start_Date varchar(12)," + " final_Date varchar(12),"
+					+ " monthly_Deposit float NOT NULL," 
+					+ " start_Date varchar(12)," 
+					+ " final_Date varchar(12),"
 					+ " PRIMARY KEY (saving_ID))",
 
 			"Account_Loans(" 
-					+ " account_ID int," + " loan_ID int,"
+					+ " account_ID int," 
+					+ " loan_ID int,"
 					+ " FOREIGN KEY (account_ID) REFERENCES Account(account_ID),"
 					+ " FOREIGN KEY (loan_ID) REFERENCES Loan(loan_ID))",
 
-			"Account_Savings(" + " account_ID int," + " saving_ID int,"
+			"Account_Savings(" 
+					+ " account_ID int," 
+					+ " saving_ID int,"
 					+ " FOREIGN KEY (account_ID) REFERENCES Account(account_ID),"
 					+ " FOREIGN KEY (saving_ID) REFERENCES Saving(saving_ID))",
 
 			"Transactions("
 					+ " transaction_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1000, INCREMENT BY 1),"
-					+ " amount float," + " Date varchar(12)," + " trans_Type int , " + " account_id int ,"
-					+ " PRIMARY KEY (transaction_ID)," + " FOREIGN KEY (account_ID) REFERENCES Account(account_ID))",
+					+ " amount float," 
+					+ " Date varchar(12)," 
+					+ " trans_Type int , " 
+					+ " account_id int ,"
+					+ " PRIMARY KEY (transaction_ID)," 
+					+ " FOREIGN KEY (account_ID) REFERENCES Account(account_ID))",
 
-			"Same_Bank_Transfer(" + " transaction_ID int," + " source_Id int ," + " dest_Id int ,"
+			"Same_Bank_Transfer(" 
+					+ " transaction_ID int," 
+					+ " source_Id int ," 
+					+ " dest_Id int ,"
 					+ " FOREIGN KEY (transaction_ID) REFERENCES Transactions (transaction_ID),"
 					+ " FOREIGN KEY (source_Id) REFERENCES Account(account_ID),"
 					+ " FOREIGN KEY (dest_Id) REFERENCES Account(account_ID))",
 
-			" Other_Bank_Transfer(" + " transaction_ID int," + " source_accunt_ID int," + " source_bank_id int,"
-					+ " dest_accunt_id int," + " dest_bank_id int,"
+			" Other_Bank_Transfer(" 
+					+ " transaction_ID int," 
+					+ " source_accunt_ID int," 
+					+ " source_bank_id int,"
+					+ " dest_accunt_id int," 
+					+ " dest_bank_id int,"
 					+ " FOREIGN KEY (transaction_ID) REFERENCES Transactions (transaction_ID))",
 
-			"Saving_transfer(" + " transaction_ID int," + " payment_Number int," + " final_Date int,"
-					+ " saving_id int ," + " FOREIGN KEY (transaction_ID) REFERENCES Transactions (transaction_ID),"
+			"Saving_transfer(" 
+					+ " transaction_ID int," 
+					+ " payment_Number int," 
+					+ " final_Date int,"
+					+ " saving_id int ," 
+					+ " FOREIGN KEY (transaction_ID) REFERENCES Transactions (transaction_ID),"
 					+ " FOREIGN KEY (saving_id) REFERENCES Saving (saving_ID))",
 
-			"Loan_transfer(" + " transaction_ID int ," + " payment_Number int," + " final_Date int," + " loan_id int,"
+			"Loan_transfer(" 
+					+ " transaction_ID int ," 
+					+ " payment_Number int," 
+					+ " final_Date int," 
+					+ " loan_id int,"
 					+ " FOREIGN KEY (transaction_ID) REFERENCES Transactions (transaction_ID),"
 					+ " FOREIGN KEY (loan_id) REFERENCES loan (loan_ID))", };
 

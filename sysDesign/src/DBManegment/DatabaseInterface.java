@@ -78,7 +78,7 @@ public interface DatabaseInterface {
 	
 	public boolean conformUserName(String userName , String passward) throws SQLException;
 	
-	public PermissionType getPermissions(Worker user) throws SQLException;
+	public PermissionType getPermissions(Worker user) throws SQLException, Exception;
 	
 	public void insertWorker(Worker manager, Worker worker , PermissionType permissionType) throws Exception;
 }
