@@ -1,6 +1,7 @@
 package sysDesign;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
@@ -13,7 +14,7 @@ public class Bank {
 	
 	private static Bank thisBank = null;
 	
-	public static Bank getThisBank() throws IOException {
+	public static Bank getThisBank() throws IOException, SQLException {
 		if(thisBank == null)
 			thisBank = DataBaseService.getDataBaseService().getBank();
 		return thisBank;
