@@ -58,9 +58,9 @@ public class LogInDialog extends JDialog {
 					}
 				}
 			});
-			add(new JLabel("id:"));
+			add(new JLabel("ID:"));
 			add(idTextField);
-			add(new JLabel("Passward"));
+			add(new JLabel("Passward:"));
 			add(passwordField);
 			add(submitButton);
 		}
