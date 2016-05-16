@@ -6,13 +6,21 @@ import java.util.Set;
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
 
-public class accountManagmentSubsystem {
-
+public class AccountManagmentSubsystem {
+	private static  AccountManagmentSubsystem accountSubsystem=null;
 	private DatabaseInterface SQLinteface;
 	
 	
+	public static AccountManagmentSubsystem getaccountSubsystem() throws SQLException{ ///////
+		if (accountSubsystem==null){
+			accountSubsystem=new AccountManagmentSubsystem();
+		}
+		return accountSubsystem;
+	}
 	
-	public accountManagmentSubsystem() throws SQLException {
+	
+	
+	private AccountManagmentSubsystem() throws SQLException {
 		SQLinteface= DataBaseService.getDataBaseService();
 	}
 
@@ -26,7 +34,7 @@ public class accountManagmentSubsystem {
 	
 	
 	public Set<sysDesign.Account> getAccountsByCustomerID (int id) throws SQLException{
-		
+	
 		return SQLinteface.getAccountsByCustomerID(id);
 	}
 	

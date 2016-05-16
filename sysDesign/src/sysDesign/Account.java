@@ -1,6 +1,7 @@
 package sysDesign;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Set;
 
 import DBManegment.DataBaseService;
@@ -50,4 +51,15 @@ public class Account {
 	public String toString() {
 		return "Account [accountId=" + accountId + ", accountBalance=" + accountBalance + "]";
 	}
+
+	public Set<Loan> getAllLoans() throws SQLException {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		return db.getLoansByAccountID(accountId);
+	}
+	
+	public Set<Saving> getAllSaivingsByAccountID() throws SQLException {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		return db.getSavingByAccountID(accountId);
+	}
+	
 }

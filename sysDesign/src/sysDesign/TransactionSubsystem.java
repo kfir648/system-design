@@ -6,11 +6,11 @@ import java.util.Set;
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
 
-public class transactionSubsystem {
+public class TransactionSubsystem {
 
 	private DatabaseInterface SQLinteface;
 	
-	public transactionSubsystem() throws SQLException {
+	public TransactionSubsystem() throws SQLException {
 		SQLinteface= DataBaseService.getDataBaseService();
 	}
 
