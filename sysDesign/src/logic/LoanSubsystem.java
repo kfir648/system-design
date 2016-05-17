@@ -1,7 +1,9 @@
-package sysDesign;
+package logic;
 
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import DBManegment.DataBaseService;
@@ -19,7 +21,7 @@ public class LoanSubsystem {
 	}
 	
 	
-	public void insertLoan (float amount,sysDesign.Date startDate, sysDesign.Date finalDate, int accountId) throws Exception{
+	public void insertLoan (float amount,logic.Date startDate, logic.Date finalDate, int accountId) throws Exception{
 		SQLinteface.insertAccountLoans(accountId, SQLinteface.insertLoan(amount, startDate, finalDate)); 
 		
 	}
@@ -30,21 +32,29 @@ public class LoanSubsystem {
 	}
 
 
-	public Set<sysDesign.Loan> getLoansByAccountID (int id) throws SQLException{
+	public Set<logic.Loan> getLoansByAccountID (int id) throws SQLException{
 		return SQLinteface.getLoansByAccountID(id);
 	}
 	
-	public sysDesign.Loan getLoansByLoanID (int id) throws SQLException{
+	public logic.Loan getLoansByLoanID (int id) throws SQLException{
 		return SQLinteface.getLoanById(id);
 	}
 	
-	public Set<sysDesign.Loan> getLoansBycustomerID (int id) throws SQLException{
+	public Set<logic.Loan> getLoansBycustomerID (int id) throws SQLException{
 		Set<Account> Accounts =SQLinteface.getAccountsByCustomerID(id);
 		Set<Loan> loans= new LinkedHashSet<>();
 		for (Account acc : Accounts){
 			loans.addAll(acc.getAllLoans());
 		}
 		return loans;
+	}
+	
+	public void updateLoanTransaction() throws Exception {
+		Map<Integer , Loan> loans = SQLinteface.getRelevantLoans();
+		Map<Integer,Set<LoanTransaction>> loanTransactions = SQLinteface.getAllRelevantLoanTransaction();  
+		
+		for(Entry<Integer, Loan> entry : loans.entrySet())
+		
 	}
 	
 }

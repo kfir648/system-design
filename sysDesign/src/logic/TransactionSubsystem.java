@@ -1,4 +1,4 @@
-package sysDesign;
+package logic;
 
 import java.sql.SQLException;
 import java.util.Set;
@@ -22,11 +22,11 @@ public class TransactionSubsystem {
 		SQLinteface = DataBaseService.getDataBaseService();
 	}
 
-	public void insertTransactionHistory(sysDesign.Transaction transaction) throws Exception{
+	public void insertTransactionHistory(logic.Transaction transaction) throws Exception{
 		SQLinteface.insertTransaction(transaction);
 	}
 	
-	public Set<sysDesign.Transaction> getHistoryTransactionByAccountID (int id) throws Exception{
+	public Set<logic.Transaction> getHistoryTransactionByAccountID (int id) throws Exception{
 		return SQLinteface.getHistoryTransactionByAccountID(id);
 	}
 	

@@ -1,4 +1,4 @@
-package sysDesign;
+package logic;
 
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
@@ -29,11 +29,11 @@ public class SaivingsSubsystem {
 		SQLinteface.insertAccountSavings(accountId, saivingsId);
 		}
 	
-	public Set<sysDesign.Saving> getSavingByAccountID (int id) throws SQLException{
+	public Set<logic.Saving> getSavingByAccountID (int id) throws SQLException{
 		return SQLinteface.getSavingByAccountID(id);
 	}
 	
-	public Set<sysDesign.Saving> getSavingsBycustomerID (int id) throws SQLException{
+	public Set<logic.Saving> getSavingsBycustomerID (int id) throws SQLException{
 		Set<Account> Accounts =SQLinteface.getAccountsByCustomerID(id);
 		Set<Saving> savings= new LinkedHashSet<>();
 		for (Account acc : Accounts){

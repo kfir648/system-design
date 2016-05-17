@@ -3,18 +3,20 @@ package DBManegment;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Set;
 
-import sysDesign.Account;
-import sysDesign.Bank;
-import sysDesign.Customer;
-import sysDesign.Date;
-import sysDesign.Loan;
-import sysDesign.OtherBankTransfer;
-import sysDesign.Saving;
-import sysDesign.Transaction;
-import sysDesign.Worker;
-import sysDesign.Worker.PermissionType;
+import logic.Account;
+import logic.Bank;
+import logic.Customer;
+import logic.Date;
+import logic.Loan;
+import logic.LoanTransaction;
+import logic.OtherBankTransfer;
+import logic.Saving;
+import logic.Transaction;
+import logic.Worker;
+import logic.Worker.PermissionType;
 
 public interface DatabaseInterface {
 
@@ -22,10 +24,10 @@ public interface DatabaseInterface {
 
 	public void insertCustomer(int customerId, String customerName) throws Exception;
 
-	public int insertLoan(float amount, sysDesign.Date startDate,
-			sysDesign.Date finalDate) throws Exception;
+	public int insertLoan(float amount, logic.Date startDate,
+			logic.Date finalDate) throws Exception;
 
-	public int insertSaving(float monthlyDeposit, sysDesign.Date startDate, sysDesign.Date finalDate) throws Exception;
+	public int insertSaving(float monthlyDeposit, logic.Date startDate, logic.Date finalDate) throws Exception;
 	
 	public void insertBindCustomerAccount(int accountId, int customerId) throws Exception;
 
@@ -88,4 +90,10 @@ public interface DatabaseInterface {
 	public void rejectOtherBankTransfer(int transId) throws SQLException;
 
 	public OtherBankTransfer getOtherBankTransByReqId(int reqId)throws SQLException, Exception;
+
+	public Map<Integer , Loan> getRelevantLoans()throws SQLException;
+	
+	public void setLoanIrrelevant(int loanId) throws SQLException;
+
+	public Map<Integer, Set<LoanTransaction>> getAllRelevantLoanTransaction() throws Exception;
 }

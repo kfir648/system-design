@@ -6,13 +6,13 @@ import java.util.Set;
 
 import api_otherBank.transf.TransferRequestTuple;
 import api_otherBank.transf.TransferResult;
+import logic.*;
+import logic.Worker.PermissionType;
 import otherBankTrans.ConformEvent;
 import otherBankTrans.ConformTransactionListener;
 import otherBankTrans.OtherBankTrans;
 import otherBankTrans.TransactionEvent;
 import otherBankTrans.TransactionListener;
-import sysDesign.*;
-import sysDesign.Worker.PermissionType;
 
 public class Main {
 

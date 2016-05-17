@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import sysDesign.Worker;
+import logic.Worker;
 
 @SuppressWarnings("serial")
 public class LogInDialog extends JDialog {

@@ -8,12 +8,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import sysDesign.*;
-import sysDesign.Worker.PermissionType;
+import logic.*;
+import logic.Worker.PermissionType;
 
 public class DataBaseService implements DatabaseInterface {
 
@@ -186,7 +188,7 @@ public class DataBaseService implements DatabaseInterface {
 			throw new Exception("amount is negative");
 
 		PreparedStatement psInsert = conn.prepareStatement(
-				"insert into loans(amount, start_Date, final_Date) VALUES (?,?,?)", new String[] { "LOAN_ID" });
+				"insert into loans(amount, start_Date, final_Date , relevant) VALUES (?,?,?,1)", new String[] { "LOAN_ID" });
 
 		psInsert.setFloat(1, amount);
 		psInsert.setString(2, startDate.toString());
@@ -532,7 +534,7 @@ public class DataBaseService implements DatabaseInterface {
 
 		while (!rs.next())
 			loan.add(new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-					Date.getDateFromString(rs.getString(4))));
+					Date.getDateFromString(rs.getString(4)) , rs.getInt(5) == 1));
 		
 		psGet.close();
 		rs.close();
@@ -655,7 +657,7 @@ public class DataBaseService implements DatabaseInterface {
 		
 		statement.close();
 		Loan loan = new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-				Date.getDateFromString(rs.getString(4)));
+				Date.getDateFromString(rs.getString(4)) , rs.getInt(5) == 1);
 		rs.close();
 		return loan;
 	}
@@ -774,6 +776,48 @@ public class DataBaseService implements DatabaseInterface {
 		if(!rs.next())
 			throw new Exception("Transaction is not exists");
 		return (OtherBankTransfer) getTransactionById(rs.getInt(1));
+	}
+
+	@Override
+	public Map<Integer,Loan> getRelevantLoans() throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("select * from loan where relevant = 1");
+		ResultSet rs = statement.executeQuery();
+		Map<Integer,Loan> loans = new LinkedHashMap<>();
+		while(rs.next())
+		{
+			loans.put(rs.getInt(1), new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)), Date.getDateFromString(rs.getString(4)) , true));
+		}
+		return loans;
+	}
+
+	@Override
+	public void setLoanIrrelevant(int loanId) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("update loan set relevant = 1 where loan_id = " + loanId);
+		statement.execute();
+	}
+
+	@Override
+	public Map<Integer, Set<LoanTransaction>> getAllRelevantLoanTransaction() throws Exception {
+		Map<Integer , Set<LoanTransaction>> out = new LinkedHashMap<>();
+		PreparedStatement statement = conn.prepareStatement(
+				  " select loan.loan_id , transactions.transaction_id , transactions.amount , account_id , payment_Number , final_Date , loan.loan_id"
+				+ " from transactions , Loan_transfer , loan "
+				+ " where transactions.transaction_id = transactions.transaction_id "
+				+ " and Loan_transfer.loan_id = loan.loan_id "
+				+ " and loan.relevant = 1");
+		
+		ResultSet rs = statement.executeQuery();
+		while(rs.next())
+		{
+			int loanId = rs.getInt(1);
+			if(!out.containsKey(rs.getInt(1)))
+			{
+				out.put(loanId, new LinkedHashSet<>());
+			}
+			Set<LoanTransaction> loanTransactions = out.get(loanId);
+			loanTransactions.add(new LoanTransaction(rs.getInt(2), rs.getFloat(3), Date.getDateFromString(rs.getString(4)), rs.getInt(5), rs.getInt(6),Date.getDateFromString(rs.getString(7)), rs.getInt(8)));
+		}
+		return out;
 	}
 
 }

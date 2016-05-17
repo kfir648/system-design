@@ -1,4 +1,4 @@
-package sysDesign;
+package logic;
 
 import java.io.IOException;
 import java.sql.SQLException;

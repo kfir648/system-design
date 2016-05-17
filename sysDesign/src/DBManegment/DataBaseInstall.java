@@ -40,7 +40,9 @@ public class DataBaseInstall {
 			"Loan(" 
 					+ " loan_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1000, INCREMENT BY 1),"
 					+ " amount float," 
-					+ " start_Date varchar(12)," + " final_Date varchar(12),"
+					+ " start_Date varchar(12)," 
+					+ " final_Date varchar(12),"
+					+ " relevant int,"
 					+ " PRIMARY KEY (loan_ID))",
 
 			"Saving(" 
