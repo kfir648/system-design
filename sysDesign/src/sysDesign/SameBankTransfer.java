@@ -35,8 +35,17 @@ public class SameBankTransfer extends Transaction {
 
 	@Override
 	public String toString() {
-		return "SameBankTransfer [" + super.toString() + ",sourceAccountNumber=" + sourceAccountNumber + ", destenationAccountNumber="
-				+ destenationAccountNumber + "]";
+		return "Same Bank Transfer " + super.toString();
+	}
+
+	@Override
+	public String showAllDetails() throws SQLException {
+		if(getAccuntId() == sourceAccountNumber)
+		{
+			return sourceAccountNumber + " --> " + getAmount() + " --> " + destenationAccountNumber;
+		}else{
+			return destenationAccountNumber + " <-- " + getAmount() + " <-- " + sourceAccountNumber;
+		}
 	}
 	
 }

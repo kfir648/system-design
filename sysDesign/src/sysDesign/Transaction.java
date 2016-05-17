@@ -1,5 +1,7 @@
 package sysDesign;
 
+import java.sql.SQLException;
+
 public abstract class Transaction {
 
 	private int transId;
@@ -13,6 +15,8 @@ public abstract class Transaction {
 		this.transactionDate = transactionDate;
 		this.accuntId = accuntId;
 	}
+	
+	public abstract String showAllDetails() throws SQLException;
 	
 	public int getAccuntId() {
 		return accuntId;
@@ -43,7 +47,6 @@ public abstract class Transaction {
 
 	@Override
 	public String toString() {
-		return "Transaction [transId=" + transId + ", amount=" + amount + ", transactionDate=" + transactionDate
-				+ ", accuntId=" + accuntId + "]";
+		return String.format("%6d , Date : %s , %.2f ", transId , transactionDate.toString() , amount);
 	}
 }

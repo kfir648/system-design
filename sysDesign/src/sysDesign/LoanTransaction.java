@@ -28,7 +28,13 @@ public class LoanTransaction extends MonthlyTransaction {
 
 	@Override
 	public String toString() {
-		return "LoanTransaction [" + super.toString() + "loan=" + loan + "]";
+		return "Loan Transaction " + super.toString();
+	}
+
+	@Override
+	public String showAllDetails() throws SQLException {
+		return super.toString() + "\nLoan Transaction: Loan:"
+				+ DataBaseService.getDataBaseService().getLoanById(loan).toString();
 	}
 
 }

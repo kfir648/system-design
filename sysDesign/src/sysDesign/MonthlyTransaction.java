@@ -1,5 +1,7 @@
 package sysDesign;
 
+import java.sql.SQLException;
+
 public abstract class MonthlyTransaction extends Transaction {
 	private int paymentNumber;
 	private Date finalDate;
@@ -13,13 +15,12 @@ public abstract class MonthlyTransaction extends Transaction {
 	public Date getFinalDate() {
 		return finalDate;
 	}
-
-	@Override
-	public String toString() {
-		return "MonthlyTransaction [" + super.toString() + " paymentNumber=" + paymentNumber + ", finalDate=" + finalDate + "]";
-	}
-
+	
 	public int getPaymentNumber() {
 		return paymentNumber;
+	}
+	
+	public String showAllDetails() throws SQLException {
+		return "Mounthly Transaction:Payment Number:" + paymentNumber + " ,  Final Date:" + finalDate.toString();  
 	}
 }

@@ -38,6 +38,8 @@ public class Account {
 	}
 
 	public void addCustomer(Customer customer) throws Exception {
+		if(customer == null)
+			throw new Exception("The customer is null");
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		db.insertBindCustomerAccount(accountId, customer.getCustomerId());
 	}
@@ -61,5 +63,12 @@ public class Account {
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		return db.getSavingByAccountID(accountId);
 	}
+
+	public Set<Transaction> getAllTransaction() throws Exception {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		return db.getHistoryTransactionByAccountID(accountId);
+	}
+	
+	
 	
 }

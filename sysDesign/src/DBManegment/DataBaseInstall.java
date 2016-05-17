@@ -85,6 +85,8 @@ public class DataBaseInstall {
 					+ " source_bank_id int,"
 					+ " dest_accunt_id int," 
 					+ " dest_bank_id int,"
+					+ " req_id int,"
+					+ " accepted int,"
 					+ " FOREIGN KEY (transaction_ID) REFERENCES Transactions (transaction_ID))",
 
 			"Saving_transfer(" 

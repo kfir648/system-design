@@ -298,7 +298,7 @@ public class DataBaseService implements DatabaseInterface {
 		PreparedStatement psInsert = null;
 		try {
 			psInsert = conn.prepareStatement("insert into Transactions(amount, date , transType) VALUES(?,?,?)",
-					new String[] { "TRANSACTIONID" });
+					new String[] { "TRANSACTION_ID" });
 			if (transaction instanceof SavingTransaction) {
 				transType = SAVING_TRANS_ID;
 			} else if (transaction instanceof LoanTransaction) {
@@ -325,12 +325,13 @@ public class DataBaseService implements DatabaseInterface {
 			if (transType == OTHER_BANK_ID) {
 				OtherBankTransfer otherBankTransfer = (OtherBankTransfer) transaction;
 				psInsert = conn.prepareStatement(
-						"insert into other_bank_transfer(transaction_ID , source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id) VALUES(?,?,?,?,?)");
+						"insert into other_bank_transfer(transaction_ID , source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id , req_id , accepted) VALUES(?,?,?,?,?,?,0)");
 				psInsert.setInt(1, otherBankTransfer.getTransId());
 				psInsert.setInt(2, otherBankTransfer.getSourceAccuntId());
 				psInsert.setInt(3, otherBankTransfer.getSourceBank());
 				psInsert.setInt(4, otherBankTransfer.getDestinationAccuntId());
 				psInsert.setInt(5, otherBankTransfer.getDestinationBank());
+				psInsert.setInt(6, otherBankTransfer.getReqId());
 				psInsert.executeUpdate();
 			} else if (transType == SAME_BANK_TRANS_ID) {
 				SameBankTransfer sameBankTransfer = (SameBankTransfer) transaction;
@@ -630,12 +631,12 @@ public class DataBaseService implements DatabaseInterface {
 
 		case OTHER_BANK_ID:
 			statement = conn.prepareStatement(startStat
-					+ "source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id from other_bank_transfer "
+					+ "source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id from other_bank_transfer , req_id "
 					+ where + id);
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new OtherBankTransfer(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-					rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8));
+					rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8) , rs.getInt(9));
 			break;
 		}
 		if(statement != null)
@@ -749,6 +750,30 @@ public class DataBaseService implements DatabaseInterface {
 		statement.close();
 		rs.close();
 		return permissionType;
+	}
+
+	@Override
+	public void acceptOtherBankTransfer(int transId) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement(
+				"update Other_Bank_Transfer set accepted = 1 where transaction_id = " + transId);
+		statement.executeUpdate();
+	}
+
+	@Override
+	public void rejectOtherBankTransfer(int transId) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("delete from Other_bank_Transfer where transaction_id = " + transId);
+		statement.executeUpdate();
+		statement = conn.prepareStatement("delete from transactions where transaction_id = " + transId);
+		statement.executeUpdate();
+	}
+
+	@Override
+	public OtherBankTransfer getOtherBankTransByReqId(int reqId) throws Exception {
+		PreparedStatement preparedStatement = conn.prepareStatement("select transaction_id from Other_bank_Transfer where req_id = " + reqId);
+		ResultSet rs = preparedStatement.executeQuery();
+		if(!rs.next())
+			throw new Exception("Transaction is not exists");
+		return (OtherBankTransfer) getTransactionById(rs.getInt(1));
 	}
 
 }

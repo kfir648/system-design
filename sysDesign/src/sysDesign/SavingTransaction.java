@@ -1,5 +1,7 @@
 package sysDesign;
 
+import java.sql.SQLException;
+
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
 
@@ -7,7 +9,7 @@ public class SavingTransaction extends MonthlyTransaction {
 
 	@Override
 	public String toString() {
-		return "SavingTransaction [" + super.toString() + ", saving=" + saving + "]";
+		return "Saving Transaction " + super.toString();
 	}
 
 	private int saving;
@@ -27,6 +29,10 @@ public class SavingTransaction extends MonthlyTransaction {
 	
 	public int getSaving(){
 		return saving;
+	}
+	
+	public String showAllDetails() throws SQLException {
+		return super.showAllDetails() + "\nSaving Transaction:Saving:\n" + DataBaseService.getDataBaseService().getSavingById(saving).toString();
 	}
 
 }

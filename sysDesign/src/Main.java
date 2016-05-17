@@ -1,27 +1,34 @@
+import java.awt.List;
+import java.lang.reflect.Array;
 import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.apache.derby.tools.sysinfo;
-
-import DBManegment.DataBaseService;
-import DBManegment.DatabaseInterface;
-import GUI.LogInDialog;
-import sun.java2d.cmm.ProfileActivator;
+import api_otherBank.transf.TransferRequestTuple;
+import api_otherBank.transf.TransferResult;
+import otherBankTrans.ConformEvent;
+import otherBankTrans.ConformTransactionListener;
+import otherBankTrans.OtherBankTrans;
+import otherBankTrans.TransactionEvent;
+import otherBankTrans.TransactionListener;
 import sysDesign.*;
 import sysDesign.Worker.PermissionType;
 
 public class Main {
 
 	public static Scanner s = new Scanner(System.in);
+	public static OtherBankTrans otherBankTrans = OtherBankTrans.getOtherBankTrans();
 
 	public static void main(String[] args) {
 
 		boolean secssed = false;
 		Worker worker = null;
 		PermissionType permission = null;
+
+		checkCurrentStatus();
+
 		while (!secssed) {
 			System.out.println("Welcome!! please enter user name :");
 			String userName = s.nextLine();
@@ -52,9 +59,12 @@ public class Main {
 			case TELLER:
 				System.out.println("[D/d] = Deposite");
 				System.out.println("[W/w] = Widrow");
+				System.out.println("[R/r] = Check history Transactions");
+				System.out.println("[O/o] = Transfer money");
 				System.out.println("[B/b] = Check balance");
 				System.out.println("[C/c] = Add customer");
 				System.out.println("[T/t] = Add account");
+				System.out.println("[E/e] = toExit");
 				break;
 			}
 			char selection = s.next().charAt(0);
@@ -62,47 +72,371 @@ public class Main {
 			switch (selection) {
 			case 'A':
 			case 'a':
-				addWorker(worker);
+				if (permission == PermissionType.BANK_MANAGER)
+					addWorker(worker);
 				break;
 
 			case 'L':
 			case 'l':
-				loan();
+				if (permission.getValue() <= PermissionType.LOAN_OFFICER.getValue())
+					loan();
 				break;
 
 			case 'S':
 			case 's':
-				saiving();
+				if (permission.getValue() <= PermissionType.LOAN_OFFICER.getValue())
+					saiving();
 				break;
 
 			case 'D':
 			case 'd':
-				
+				deposite();
 				break;
 
 			case 'W':
 			case 'w':
+				widrow();
+				break;
 
+			case 'R':
+			case 'r':
+				CheckHistoryTransactions();
+				break;
+
+			case 'O':
+			case 'o':
+				try {
+					CreateTransfer();
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
 				break;
 
 			case 'B':
 			case 'b':
-
+				checkBalance();
 				break;
 
-				
 			case 'C':
 			case 'c':
-
+				AddCustomer();
 				break;
 
 			case 'T':
 			case 't':
+				AddAccount();
+				break;
 
+			case 'E':
+			case 'e':
+				toExit = true;
+				break;
+
+			default:
+				System.out.println("Wrong input");
 				break;
 			}
-
+			s.close();
+			OtherBankTrans.closeConnection();
 		}
+	}
+
+	private static void CreateTransfer() throws Exception {
+		System.out.println("Enter the type of transaction you want to create 1 - same bank , 2 - other bank");
+		char c;
+		do {
+			c = s.next().charAt(0);
+			if (c != '1' && c != '2')
+				System.out.println("Wrong input");
+		} while (c != '1' && c != '2');
+		Account src = null;
+		Account dest = null;
+
+		float preBalSource = 0;
+		float preBalDest = 0;
+		try {
+			System.out.println("The soure account is:");
+			src = getAccount();
+			if (c == '1') {
+				System.out.println("The destination is:");
+				dest = getAccount();
+				preBalSource = src.getAccountBalance();
+				preBalDest = dest.getAccountBalance();
+				System.out.println("Enter the amount to transfer");
+				float amount;
+				do {
+					amount = s.nextFloat();
+					if (preBalSource < amount)
+						System.out.println("You entered more the you can send");
+				} while (preBalSource < amount);
+				src.setAccountBalance(preBalSource - amount);
+				dest.setAccountBalance(preBalDest + amount);
+				new SameBankTransfer(amount, Date.getNow(), dest.getAccountId(), src.getAccountId(),
+						dest.getAccountId());
+				new SameBankTransfer(amount, Date.getNow(), src.getAccountId(), src.getAccountId(),
+						dest.getAccountId());
+				System.out.println("Transfer complete");
+			} else {
+				System.out.println("Enter bank id:");
+				int bankId = s.nextInt();
+				System.out.println("Enter account id:");
+				int destId = s.nextInt();
+				float amount;
+				do {
+					System.out.println("Enter the amount to transfer");
+					amount = s.nextFloat();
+					if (amount > src.getAccountBalance())
+						System.out.println("You entered more money to transfer then you have");
+				} while (amount > src.getAccountBalance());
+				int reqId = otherBankTrans.sendTransaction(src, new Account(destId, 0), bankId, amount);
+				new OtherBankTransfer(amount, Date.getNow(), src.getAccountId(), src.getAccountId(), OtherBankTrans.ID,
+						destId, bankId, reqId);
+				System.out.println("The transfer sent to the other bank to accept");
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			if (c == '1') {
+				if (src != null)
+					src.setAccountBalance(preBalSource);
+				if (dest != null)
+					dest.setAccountBalance(preBalDest);
+			}
+		}
+	}
+
+	private static void CheckHistoryTransactions() {
+		try {
+			Account account = getAccount();
+			Set<Transaction> transactions = account.getAllTransaction();
+			System.out.println("Your last 20 Transactions are:");
+			Transaction[] transArr = new Transaction[transactions.size()];
+			transactions.toArray(transArr);
+			Arrays.sort(transArr, new Comparator<Transaction>() {
+				@Override
+				public int compare(Transaction o1, Transaction o2) {
+					return o2.getTransactionDate().compareTo(o1.getTransactionDate());
+				}
+			});
+			int i = 0;
+			for (; i < 20 && i < transArr.length; i++) {
+				System.out.println(i + " - " + transArr[i].toString());
+			}
+			if (transArr.length > 20) {
+				System.out.println("To show more transctions press Y/y ,other to exit");
+				char c = s.next().charAt(0);
+				if (c == 'Y' || c == 'y') {
+					while (i < transArr.length) {
+						int start = i;
+						for (; i < 20 + start && i < transArr.length; i++) {
+							System.out.println(i + " - " + transArr[i].toString());
+						}
+					}
+				}
+			}
+			System.out.println("Enter the transaction number to show more information -1 to exit");
+			int c = s.nextInt();
+			if (c == -1)
+				return;
+			if (c < 0 || c >= transArr.length)
+				throw new Exception("Wrong input");
+			System.out.println(transArr[c].showAllDetails());
+		} catch (Exception e) {
+			System.out.println("ERORR:" + e.getMessage());
+		}
+
+	}
+
+	private static void checkCurrentStatus() {
+
+		try {
+			LoanSubsystem.getLoanSubsystem();
+			AccountManagmentSubsystem.getaccountSubsystem();
+			TransactionSubsystem.getTransctionSubsystem();
+
+			otherBankTrans.addNewTransferListener(new TransactionListener() {
+				@Override
+				public void transactionIncomes(TransactionEvent event) {
+					for (TransferRequestTuple requestTuple : event.getTransferRequestTuple()) {
+						try {
+							Account acc = AccountManagmentSubsystem.getaccountSubsystem()
+									.getAccountByID(requestTuple.receiverAccountId);
+							if (acc != null) {
+								int reqId = otherBankTrans.accept(requestTuple);
+								new OtherBankTransfer(requestTuple.amount, Date.getNow(), acc.getAccountId(),
+										requestTuple.senderAccountId, requestTuple.senderBankId, acc.getAccountId(),
+										OtherBankTrans.ID, reqId);
+								acc.setAccountBalance(acc.getAccountBalance() + requestTuple.amount);
+							} else {
+								otherBankTrans.reject(requestTuple);
+							}
+						} catch (Exception e) {
+							otherBankTrans.reject(requestTuple);
+						}
+					}
+				}
+			});
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		otherBankTrans.addConformTransferListener(new ConformTransactionListener() {
+
+			@Override
+			public void conformTransaction(ConformEvent event) {
+				for (TransferResult result : event.getTransferResult()) {
+					try {
+						int outcome = result.getOutcome();
+						if (outcome == TransferRequestTuple.ACCEPT) {
+							OtherBankTransfer bankTransfer = TransactionSubsystem.getTransctionSubsystem()
+									.getOtherBankTransByReqId(result.getRequestId());
+							Account account = AccountManagmentSubsystem.getaccountSubsystem()
+									.getAccountByID(bankTransfer.getAccuntId());
+							account.setAccountBalance(account.getAccountBalance() - bankTransfer.getAmount());
+						}
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+				}
+			}
+		});
+
+	}
+
+	private static Account AddAccount() {
+		System.out.println("Enter start balance");
+		int balance = s.nextInt();
+		try {
+			Account acc = new Account(balance);
+			System.out.println("The Account was created number:" + acc.getAccountId());
+			return acc;
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return null;
+	}
+
+	private static void AddCustomer() {
+
+		try {
+			System.out.println("Enter customer name");
+			String name = s.nextLine();
+			System.out.println("Enter customer id");
+			int custId = s.nextInt();
+			Customer customer = new Customer(custId, name);
+			System.out.println("The customer is entered to create new Account?");
+			Account account = AddAccount();
+			customer.addAccount(account);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	private static void checkBalance() {
+		Account account;
+		try {
+			account = getAccount();
+			System.out.println("Your balance is: " + account.getAccountBalance());
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	private static void deposite() {
+		Account account = null;
+		while (true) {
+			try {
+				account = getAccount();
+				break;
+			} catch (Exception e1) {
+				System.out.println(e1.getMessage());
+			}
+		}
+		System.out.println("Enter the amount to deposite");
+		float amount;
+		do {
+			amount = s.nextFloat();
+			if (amount <= 0)
+				System.out.println("The amount most be positive number");
+		} while (amount <= 0);
+		try {
+			account.setAccountBalance(account.getAccountBalance() + amount);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	private static void widrow() {
+		Account acc;
+		while (true) {
+			try {
+				acc = getAccount();
+				break;
+			} catch (Exception e1) {
+				System.out.println(e1.getMessage());
+			}
+		}
+		float balance = acc.getAccountBalance();
+		System.out.println("Enter the amount to deposite(max - " + balance + ":");
+		float amount;
+		while (true) {
+			amount = s.nextFloat();
+			if (amount > balance)
+				System.out.println("You can't take more then you have");
+			else
+				break;
+		}
+		System.out.println("Are you sure?(Y/N");
+		char selection = s.next().charAt(0);
+		boolean wrongAnswer = false;
+		while (!wrongAnswer) {
+			switch (selection) {
+			case 'Y':
+			case 'y':
+				try {
+					acc.setAccountBalance(balance - amount);
+					System.out.println("Your current balance is: " + acc.getAccountBalance());
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+				break;
+
+			case 'N':
+			case 'n':
+				break;
+
+			default:
+				wrongAnswer = true;
+				break;
+			}
+		}
+	}
+
+	private static Account getAccount() throws SQLException, Exception {
+		System.out.println("Chose account:" + "\n1 - By Account ID" + "\n2 - By Customer ID");
+
+		char selection = s.next().charAt(0);
+		switch (selection) {
+		case '1':
+			System.out.println("Enter account id");
+			int accId = s.nextInt();
+			return AccountManagmentSubsystem.getaccountSubsystem().getAccountByID(accId);
+		case '2':
+			System.out.println("Enter customer id:");
+			int customerID = s.nextInt();
+			AccountManagmentSubsystem accountManagmentSubsystem = AccountManagmentSubsystem.getaccountSubsystem();
+			Set<Account> accounts = accountManagmentSubsystem.getAccountsByCustomerID(customerID);
+			Account[] accArr = new Account[accounts.size()];
+			accounts.toArray(accArr);
+			System.out.println("Choose account");
+			for (int i = 0; i < accArr.length; i++) {
+				System.out.println(i + accArr[i].toString());
+			}
+			int accountPos = s.nextInt();
+			if (accountPos < 0 | accountPos >= accArr.length)
+				throw new Exception("Type wrong account");
+			return accArr[accountPos];
+		}
+		return null;
 	}
 
 	private static void saiving() {
@@ -119,14 +453,12 @@ public class Main {
 			break;
 		}
 
-		
-		
 	}
 
 	private static void checkSavings() {
 		Saving save = getSaving();
 		System.out.println(save.toString());
-		
+
 	}
 
 	private static Saving getSaving() {
@@ -188,7 +520,7 @@ public class Main {
 
 	private static void makeNewSavings() {
 		while (true) {
-			
+
 			SaivingsSubsystem saveSub;
 			try {
 				saveSub = SaivingsSubsystem.getSavingSubsystem();
@@ -208,7 +540,7 @@ public class Main {
 				System.out.println(e.getMessage());
 			}
 		}
-		
+
 	}
 
 	public static void addWorker(Worker manager) {
@@ -359,9 +691,8 @@ public class Main {
 
 	}
 
-	private static void deposit(){
+	private static void deposit() {
 		System.out.println("Enter account ID:");
 	}
-	
-	
+
 }

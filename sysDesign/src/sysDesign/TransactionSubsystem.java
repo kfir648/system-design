@@ -10,8 +10,16 @@ public class TransactionSubsystem {
 
 	private DatabaseInterface SQLinteface;
 	
-	public TransactionSubsystem() throws SQLException {
-		SQLinteface= DataBaseService.getDataBaseService();
+	private static TransactionSubsystem subsystem;
+	
+	public static TransactionSubsystem getTransctionSubsystem() throws SQLException {
+		if(subsystem == null)
+			subsystem = new TransactionSubsystem();
+		return subsystem;
+	}
+	
+	private TransactionSubsystem() throws SQLException {
+		SQLinteface = DataBaseService.getDataBaseService();
 	}
 
 	public void insertTransactionHistory(sysDesign.Transaction transaction) throws Exception{
@@ -22,7 +30,9 @@ public class TransactionSubsystem {
 		return SQLinteface.getHistoryTransactionByAccountID(id);
 	}
 	
-	
+	public OtherBankTransfer getOtherBankTransByReqId(int reqId) throws Exception {
+		return SQLinteface.getOtherBankTransByReqId(reqId);
+	}
 	
 	
 }

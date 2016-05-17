@@ -9,7 +9,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.Set;
 
 import api_otherBank.AuthException;
@@ -28,9 +27,9 @@ public class OtherBankTrans {
 	private ArrayList<TransactionListener> newTranslisteners = null;
 	private ArrayList<ConformTransactionListener> conformTransactionListeners = null;
 
-	private final static long TIME_TO_CHECK_INCOM_TRANS = 10000; //10 seconds
+	private final static long TIME_TO_CHECK_INCOM_TRANS = 10000; // 10 seconds
 	private final static String NAME = "IBTS";
-	private final static int ID = 255;
+	public final static int ID = 255;
 	private final static String SECRET = "7cufHngk";
 	private final static String LAST_REQUEST_ID_FILE = "lastRequestFile.dat";
 	private final static int START_REQUEST_ID = 1;
@@ -48,7 +47,7 @@ public class OtherBankTrans {
 	}
 
 	public static void closeConnection() {
-		if(otherBankTrans == null)
+		if (otherBankTrans == null)
 			return;
 		otherBankTrans.threadWorking = false;
 		try {
@@ -75,7 +74,7 @@ public class OtherBankTrans {
 			return;
 		newTranslisteners.remove(listener);
 	}
-	
+
 	public synchronized void addConformTransferListener(ConformTransactionListener listener) {
 		if (listener == null)
 			return;
@@ -95,21 +94,23 @@ public class OtherBankTrans {
 	}
 
 	private OtherBankTrans() throws RemoteException, NotBoundException {
-		Registry registry = LocateRegistry.getRegistry();
+		Registry registry = LocateRegistry.getRegistry("LOCALHOST");
 		server = (IBTS) registry.lookup(NAME);
-		
+
 		threadWorking = true;
 		thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (threadWorking) {
 					try {
-						Set<TransferRequestTuple> transferRequestTuples = server.getNewRequestsFor(SECRET, ID, MAX_TRANSACTIONS);
+						Set<TransferRequestTuple> transferRequestTuples = server.getNewRequestsFor(SECRET, ID,
+								MAX_TRANSACTIONS);
 						if (!transferRequestTuples.isEmpty())
 							fireNewRequestListeners(transferRequestTuples);
-						
-						Set<TransferResult> transferResults = server.getCompletedRequestsOf(SECRET, ID, MAX_TRANSACTIONS);
-						if(!transferResults.isEmpty())
+
+						Set<TransferResult> transferResults = server.getCompletedRequestsOf(SECRET, ID,
+								MAX_TRANSACTIONS);
+						if (!transferResults.isEmpty())
 							fireConformRequestListeners(transferResults);
 						Thread.sleep(TIME_TO_CHECK_INCOM_TRANS);
 					} catch (InterruptedException | RemoteException | SQLException | AuthException e) {
@@ -121,16 +122,11 @@ public class OtherBankTrans {
 
 	}
 
-	public boolean sendTransaction(Account sender, Account reciver, int otherBankId, float amount) {
-		try {
-			server.send(SECRET, getLastRequestId(), ID, sender.getAccountId(), otherBankId, reciver.getAccountId(),
-					(int) amount);
-			return true;
-		} catch (SQLException | AuthException | IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-
+	public int sendTransaction(Account sender, Account reciver, int otherBankId, float amount)
+			throws SQLException, AuthException, IOException {
+		int reqId = getLastRequestId();
+		server.send(SECRET, reqId, ID, sender.getAccountId(), otherBankId, reciver.getAccountId(), (int) amount);
+		return reqId;
 	}
 
 	private void fireNewRequestListeners(Set<TransferRequestTuple> transferRequestTuple) {
@@ -142,7 +138,7 @@ public class OtherBankTrans {
 			listener.transactionIncomes(event);
 		}
 	}
-	
+
 	private void fireConformRequestListeners(Set<TransferResult> transferResults) {
 		if (conformTransactionListeners == null || conformTransactionListeners.isEmpty())
 			return;
@@ -153,14 +149,9 @@ public class OtherBankTrans {
 		}
 	}
 
-	public boolean accept(TransferRequestTuple requestTuple) {
-		try {
-			server.accept(SECRET, ID, requestTuple.receiverAccountId, requestTuple.id);
-			return true;
-		} catch (RemoteException | TransferException | SQLException | AuthException e) {
-			e.printStackTrace();
-			return false;
-		}
+	public int accept(TransferRequestTuple requestTuple) throws RemoteException, TransferException, SQLException, AuthException {
+		server.accept(SECRET, ID, requestTuple.receiverAccountId, requestTuple.id);
+		return requestTuple.id;
 	}
 
 	public boolean reject(TransferRequestTuple requestTuple) {
@@ -190,63 +181,4 @@ public class OtherBankTrans {
 		accessFile.close();
 		return reqId;
 	}
-
-//	public static void main(String[] args) {
-//		OtherBankTrans bankTrans = getOtherBankTrans();
-//		bankTrans.addNewTransferListener(new TransactionListener() {
-//			@Override
-//			public void transactionIncomes(TransactionEvent event) {
-//				for(TransferRequestTuple requestTuple : event.getTransferRequestTuple())
-//				{
-//					bankTrans.accept(requestTuple);
-//					System.out.println("the transactions " + requestTuple.id + " accepted");
-//				}
-//			}
-//		});
-//		bankTrans.addConformTransferListener(new ConformTransactionListener() {
-//			@Override
-//			public void conformTransaction(ConformEvent event) {
-//				for(TransferResult result : event.getTransferResult())
-//					System.out.println(result.getRequestId());				
-//			}
-//		});
-//		bankTrans.sendTransaction(new Account(1234, 4321), new Account(43212, 2324), ID, 123);
-//	}
-}
-
-interface TransactionListener {
-	void transactionIncomes(TransactionEvent event);
-}
-
-interface ConformTransactionListener {
-	void conformTransaction(ConformEvent event);
-}
-
-class TransactionEvent extends EventObject {
-	private static final long serialVersionUID = 1L;
-	private Set<TransferRequestTuple> transferRequestTuple;
-
-	public TransactionEvent(Object source, Set<TransferRequestTuple> transferRequestTuple) {
-		super(source);
-		this.transferRequestTuple = transferRequestTuple;
-	}
-
-	public Set<TransferRequestTuple> getTransferRequestTuple() {
-		return transferRequestTuple;
-	}
-}
-
-class ConformEvent extends EventObject {
-	private static final long serialVersionUID = 2L;
-	private Set<TransferResult> transferResults;
-	
-	public ConformEvent(Object source , Set<TransferResult> transferResults) {
-		super(source);
-		this.transferResults = transferResults;
-	}
-	
-	public Set<TransferResult> getTransferResult() {
-		return transferResults;
-	}
-	
 }

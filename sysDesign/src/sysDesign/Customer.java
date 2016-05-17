@@ -49,6 +49,8 @@ public class Customer {
 	}
 
 	public void addAccount(Account acc) throws Exception {
+		if(acc == null)
+			throw new Exception("The account you enter is null");
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		db.insertBindCustomerAccount(acc.getAccountId(), customerId);
 	}

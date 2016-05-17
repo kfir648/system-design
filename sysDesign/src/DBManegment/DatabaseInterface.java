@@ -10,6 +10,7 @@ import sysDesign.Bank;
 import sysDesign.Customer;
 import sysDesign.Date;
 import sysDesign.Loan;
+import sysDesign.OtherBankTransfer;
 import sysDesign.Saving;
 import sysDesign.Transaction;
 import sysDesign.Worker;
@@ -81,4 +82,10 @@ public interface DatabaseInterface {
 	public PermissionType getPermissions(Worker user) throws SQLException, Exception;
 	
 	public void insertWorker(Worker manager, Worker worker , PermissionType permissionType) throws Exception;
+
+	public void acceptOtherBankTransfer(int transId) throws SQLException;
+
+	public void rejectOtherBankTransfer(int transId) throws SQLException;
+
+	public OtherBankTransfer getOtherBankTransByReqId(int reqId)throws SQLException, Exception;
 }
