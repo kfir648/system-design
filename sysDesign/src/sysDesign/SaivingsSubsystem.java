@@ -20,7 +20,7 @@ public class SaivingsSubsystem {
 	
 	
 	private SaivingsSubsystem() throws SQLException {
-		DatabaseInterface SQLinteface= DataBaseService.getDataBaseService();
+		SQLinteface = DataBaseService.getDataBaseService();
 	}
 
 	public void createSavings(float amount , Date startDate, Date finalDate,int accountId) throws Exception{

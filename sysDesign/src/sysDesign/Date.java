@@ -1,9 +1,5 @@
 package sysDesign;
 
-import java.sql.Time;
-import java.util.Calendar;
-import java.awt.datatransfer.*;
-
 public class Date implements Cloneable , Comparable<Date>{
 
 	int day;
@@ -78,6 +74,7 @@ public class Date implements Cloneable , Comparable<Date>{
 		return rs;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static Date getNow() {
 		java.util.Date calendar = new java.util.Date (System.currentTimeMillis());
 		return new Date(calendar.getDay(), calendar.getMonth(), calendar.getYear());

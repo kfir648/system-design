@@ -23,7 +23,7 @@ public class TransactionSubsystem {
 	}
 
 	public void insertTransactionHistory(sysDesign.Transaction transaction) throws Exception{
-		int TrasactionId= SQLinteface.insertTransaction(transaction);
+		SQLinteface.insertTransaction(transaction);
 	}
 	
 	public Set<sysDesign.Transaction> getHistoryTransactionByAccountID (int id) throws Exception{

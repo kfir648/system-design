@@ -1,7 +1,6 @@
 package sysDesign;
 
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Set;
 
 import DBManegment.DataBaseService;

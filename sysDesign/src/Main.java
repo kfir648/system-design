@@ -1,5 +1,3 @@
-import java.awt.List;
-import java.lang.reflect.Array;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -299,7 +297,6 @@ public class Main {
 				}
 			}
 		});
-
 	}
 
 	private static Account AddAccount() {
@@ -591,7 +588,7 @@ public class Main {
 
 	private static void checkLoan() {
 		Loan loan = getLoan();
-		System.out.println("loan.toString()");
+		System.out.println(loan.toString());
 	}
 
 	private static Loan getLoan() {
@@ -690,9 +687,4 @@ public class Main {
 		return d;
 
 	}
-
-	private static void deposit() {
-		System.out.println("Enter account ID:");
-	}
-
 }
