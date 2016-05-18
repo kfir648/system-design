@@ -2,6 +2,7 @@ package logic;
 
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import DBManegment.DataBaseService;
@@ -46,6 +47,14 @@ public class SaivingsSubsystem {
 	
 	public Saving getSavingsByID(int savingID) throws SQLException {
 	return SQLinteface.getSavingById(savingID);	
+	}
+	
+	public void updateSavingTransaction() throws Exception {
+		Map<Integer , Saving> Savings = SQLinteface.getRelevantSavings();
+		Map<Integer,Set<SavingTransaction>> SavingTransactions = SQLinteface.getAllRelevantSavingTransaction();  
+		
+//		for(Entry<Integer, Saving> entry : Savings.entrySet())
+		
 	}
 
 	

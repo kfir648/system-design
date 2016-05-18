@@ -7,25 +7,30 @@ import DBManegment.DatabaseInterface;
 
 public class Saving {
 	private int savingId;
-	private float monthlyPaymentNumber;
+	private float monthlyPayment;
 	private Date startSavingDate;
 	private Date finalSavingsDate;
 	
-	public Saving(int savingId , float monthlyPaymentNumber, Date startSavingDate , Date finalSavingsDate) {
-		this.monthlyPaymentNumber = monthlyPaymentNumber;
+	private int accountId;
+	
+	public Saving(int savingId , float monthlyPayment , Date startSavingDate , Date finalSavingsDate , int accountId) {
 		this.startSavingDate = startSavingDate;
 		this.finalSavingsDate = finalSavingsDate;
+		this.monthlyPayment = monthlyPayment;
 		this.savingId = savingId;
 	}
 	
-	public Saving(Date startSavingDate ,Date finalSavingsDate) throws Exception {
-		this.startSavingDate = startSavingDate;
-		this.finalSavingsDate = finalSavingsDate;
+	public Saving( float monthlyPayment , Date startSavingDate ,Date finalSavingsDate , int accountId) throws Exception {
+		this(0 , monthlyPayment , startSavingDate , finalSavingsDate , accountId);
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();
-		savingId = db.insertSaving(monthlyPaymentNumber, startSavingDate, finalSavingsDate);
+		savingId = db.insertSaving(monthlyPayment, startSavingDate, finalSavingsDate);
 	}
 	
+	public int getAccountId() {
+		return accountId;
+	}
+
 	public int getSavingId() {
 		return savingId;
 	}
@@ -39,11 +44,11 @@ public class Saving {
 	}
 
 	public float getMonthlyPaymentNumber() {
-		return monthlyPaymentNumber;
+		return monthlyPayment;
 	}
 
 	public void setMonthlyPaymentNumber(int monthlyPaymentNumber) throws SQLException {
-		this.monthlyPaymentNumber = monthlyPaymentNumber;
+		this.monthlyPayment = monthlyPaymentNumber;
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		db.updateSaving(savingId , monthlyPaymentNumber , startSavingDate , finalSavingsDate);
@@ -53,19 +58,19 @@ public class Saving {
 		this.finalSavingsDate = finalSavingsDate;
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();
-		db.updateSaving(savingId , monthlyPaymentNumber , startSavingDate , finalSavingsDate);
+		db.updateSaving(savingId , monthlyPayment , startSavingDate , finalSavingsDate);
 	}
 
 	public void setStartSavingDate(Date startSavingDate) throws SQLException {
 		this.startSavingDate = startSavingDate;
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();
-		db.updateSaving(savingId , monthlyPaymentNumber , startSavingDate , finalSavingsDate);
+		db.updateSaving(savingId , monthlyPayment , startSavingDate , finalSavingsDate);
 	}
 
 	@Override
 	public String toString() {
-		return "Saving [savingId=" + savingId + ", monthlyPaymentNumber=" + monthlyPaymentNumber + ", startSavingDate="
+		return "Saving [savingId=" + savingId + ", monthlyPaymentNumber=" + monthlyPayment + ", startSavingDate="
 				+ startSavingDate + ", finalSavingsDate=" + finalSavingsDate + "]";
 	}
 	

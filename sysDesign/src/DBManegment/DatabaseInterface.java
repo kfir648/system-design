@@ -14,6 +14,7 @@ import logic.Loan;
 import logic.LoanTransaction;
 import logic.OtherBankTransfer;
 import logic.Saving;
+import logic.SavingTransaction;
 import logic.Transaction;
 import logic.Worker;
 import logic.Worker.PermissionType;
@@ -96,4 +97,10 @@ public interface DatabaseInterface {
 	public void setLoanIrrelevant(int loanId) throws SQLException;
 
 	public Map<Integer, Set<LoanTransaction>> getAllRelevantLoanTransaction() throws Exception;
+
+	public Map<Integer, Saving> getRelevantSavings() throws Exception;
+
+	public Map<Integer, Set<SavingTransaction>> getAllRelevantSavingTransaction() throws Exception ;
+	
+	public void setSavingIrrelevant(int loanId) throws SQLException;
 }
