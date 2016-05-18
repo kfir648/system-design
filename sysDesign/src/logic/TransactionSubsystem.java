@@ -10,7 +10,7 @@ public class TransactionSubsystem {
 
 	private DatabaseInterface SQLinteface;
 	
-	private static TransactionSubsystem subsystem;
+	private static TransactionSubsystem subsystem=null;
 	
 	public static TransactionSubsystem getTransctionSubsystem() throws SQLException {
 		if(subsystem == null)

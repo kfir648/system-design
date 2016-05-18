@@ -61,7 +61,33 @@ public class Date implements Cloneable , Comparable<Date>{
 	public String toString() {
 		return day + "/" + month + "/" + year;
 	}
+	
+	public Date next(){
+		int newMonth;
+		int newYear;
+		if(this.month==12){
+			 newMonth=1;
+			 newYear=this.year+1;
+		}
+		else{
+			 newMonth=this.month+1;
+			 newYear=this.year;
+		}
+			Date next =new Date(this.day,newMonth,newYear);
+			return next;
+			
+	}
 
+	public int howManyMonths(Date date){
+		int numOfMonths=0;
+		Date next=null;
+		while(this.compareTo(date)<0){
+			next=this.next();
+			numOfMonths++;
+		}
+		return numOfMonths;
+	}
+	
 	@Override
 	public int compareTo(Date o) {
 		int rs = year - o.year;
@@ -79,4 +105,7 @@ public class Date implements Cloneable , Comparable<Date>{
 		java.util.Date calendar = new java.util.Date (System.currentTimeMillis());
 		return new Date(calendar.getDay(), calendar.getMonth(), calendar.getYear());
 	}
+	
+	
+	
 }

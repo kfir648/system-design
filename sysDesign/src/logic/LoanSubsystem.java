@@ -13,7 +13,7 @@ public class LoanSubsystem {
 	private static LoanSubsystem loanSubsystem=null;
 	private DatabaseInterface SQLinteface;
 	
-	public static LoanSubsystem getLoanSubsystem() throws SQLException{ ///////
+	public static LoanSubsystem getLoanSubsystem() throws SQLException{
 		if (loanSubsystem==null){
 			loanSubsystem=new LoanSubsystem();
 		}
@@ -53,7 +53,16 @@ public class LoanSubsystem {
 		Map<Integer , Loan> loans = SQLinteface.getRelevantLoans();
 		Map<Integer,Set<LoanTransaction>> loanTransactions = SQLinteface.getAllRelevantLoanTransaction();  
 		
-		for(Entry<Integer, Loan> entry : loans.entrySet())
+		for(Entry<Integer, Loan> entry : loans.entrySet()){
+			int numOfPayments=0;
+			Date startDate=entry.getValue().getFirstPaymentDate();
+			numOfPayments=startDate.getNow().compareTo(startDate);
+			for(int i=0;i<numOfPayments;i++){
+				Transaction transaction= new Transaction
+				loanSubsystem.SQLinteface.insertTransaction(transaction);
+				
+			}
+		}
 		
 	}
 	

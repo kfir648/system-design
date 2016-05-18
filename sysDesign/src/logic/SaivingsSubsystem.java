@@ -11,7 +11,7 @@ public class SaivingsSubsystem {
 	private static SaivingsSubsystem savingSubsystem=null;
 	DatabaseInterface SQLinteface;
 	
-	public static SaivingsSubsystem getSavingSubsystem() throws SQLException{ ///////
+	public static SaivingsSubsystem getSavingSubsystem() throws SQLException{
 		if (savingSubsystem==null){
 			savingSubsystem=new SaivingsSubsystem();
 		}

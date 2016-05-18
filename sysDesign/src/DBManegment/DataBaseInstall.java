@@ -43,6 +43,8 @@ public class DataBaseInstall {
 					+ " start_Date varchar(12)," 
 					+ " final_Date varchar(12),"
 					+ " relevant int,"
+					+ "account_ID int,"
+					+ "FOREIGN KEY (account_ID) REFERENCES Account(account_ID), "
 					+ " PRIMARY KEY (loan_ID))",
 
 			"Saving(" 
@@ -50,19 +52,11 @@ public class DataBaseInstall {
 					+ " monthly_Deposit float NOT NULL," 
 					+ " start_Date varchar(12)," 
 					+ " final_Date varchar(12),"
+					+ "account_ID int,"
+					+ "FOREIGN KEY (account_ID) REFERENCES Account(account_ID), "
 					+ " PRIMARY KEY (saving_ID))",
 
-			"Account_Loans(" 
-					+ " account_ID int," 
-					+ " loan_ID int,"
-					+ " FOREIGN KEY (account_ID) REFERENCES Account(account_ID),"
-					+ " FOREIGN KEY (loan_ID) REFERENCES Loan(loan_ID))",
-
-			"Account_Savings(" 
-					+ " account_ID int," 
-					+ " saving_ID int,"
-					+ " FOREIGN KEY (account_ID) REFERENCES Account(account_ID),"
-					+ " FOREIGN KEY (saving_ID) REFERENCES Saving(saving_ID))",
+		
 
 			"Transactions("
 					+ " transaction_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1000, INCREMENT BY 1),"
