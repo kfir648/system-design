@@ -10,7 +10,6 @@ public class Saving {
 	private float monthlyPayment;
 	private Date startSavingDate;
 	private Date finalSavingsDate;
-	
 	private int accountId;
 	
 	public Saving(int savingId , float monthlyPayment , Date startSavingDate , Date finalSavingsDate , int accountId) {
@@ -43,7 +42,7 @@ public class Saving {
 		return finalSavingsDate;
 	}
 
-	public float getMonthlyPaymentNumber() {
+	public float getMonthlyPayment() {
 		return monthlyPayment;
 	}
 
@@ -73,6 +72,8 @@ public class Saving {
 		return "Saving [savingId=" + savingId + ", monthlyPaymentNumber=" + monthlyPayment + ", startSavingDate="
 				+ startSavingDate + ", finalSavingsDate=" + finalSavingsDate + "]";
 	}
+
+	
 	
 	
 	

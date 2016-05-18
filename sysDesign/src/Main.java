@@ -38,7 +38,6 @@ public class Main {
 				permission = worker.getPermission();
 				secssed = true;
 			} catch (Exception e) {
-
 				System.out.println("User name dose not exeist!!!");
 			}
 		}

@@ -1,8 +1,10 @@
 package logic;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import DBManegment.DataBaseService;
@@ -53,10 +55,28 @@ public class SaivingsSubsystem {
 		Map<Integer , Saving> Savings = SQLinteface.getRelevantSavings();
 		Map<Integer,Set<SavingTransaction>> SavingTransactions = SQLinteface.getAllRelevantSavingTransaction();  
 		
-//		for(Entry<Integer, Saving> entry : Savings.entrySet())
+		for(Entry<Integer, Saving> entry : Savings.entrySet()){
+			int numOfPayments=0;
+			Date startDate=entry.getValue().getStartSavingDate();
+			numOfPayments=startDate.howManyMonths(startDate.getNow());
+			for(int i=0;i<numOfPayments;i++){
+				MonthlyTransaction transaction= new MonthlyTransaction(  entry.getValue().getSavingId(),entry.getValue().getMonthlyPayment(),startDate,entry.getValue().getAccountId(),i,entry.getValue().getFinalSavingsDate());
+				
+				startDate=startDate.next();
+				savingSubsystem.SQLinteface.insertTransaction(transaction);
+			}
+		}
 		
 	}
 
-	
+	public float checkSavingAmount(int savingID) throws SQLException{
+		float sum=0;
+		  Saving save= this.getSavingsByID(savingID);
+		Date start = save.getStartSavingDate();
+		Date now= Date.getNow();
+		int numberOfMounth=now.howManyMonths(start);
+		sum=save.getMonthlyPayment()*numberOfMounth;
+		return sum;
+	}
 	
 }

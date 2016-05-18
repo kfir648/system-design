@@ -59,12 +59,12 @@ public class LoanSubsystem {
 		for(Entry<Integer, Loan> entry : loans.entrySet()){
 			int numOfPayments=0;
 			Date startDate=entry.getValue().getFirstPaymentDate();
-			numOfPayments=startDate.getNow().compareTo(startDate);
+			numOfPayments=startDate.howManyMonths(startDate.getNow());
 			for(int i=0;i<numOfPayments;i++){
 				MonthlyTransaction transaction= new MonthlyTransaction(  entry.getValue().getLoanId(),entry.getValue().getAmount(),startDate,entry.getValue().getAccountID(),i,entry.getValue().getFinalDate());
 				
 				startDate=startDate.next();
-						loanSubsystem.SQLinteface.insertTransaction(transaction);
+				loanSubsystem.SQLinteface.insertTransaction(transaction);
 				
 			}
 		}
