@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.derby.iapi.transaction.TransactionControl;
+import org.apache.derby.impl.store.raw.xact.TransactionTable;
+
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
 
@@ -58,8 +61,10 @@ public class LoanSubsystem {
 			Date startDate=entry.getValue().getFirstPaymentDate();
 			numOfPayments=startDate.getNow().compareTo(startDate);
 			for(int i=0;i<numOfPayments;i++){
-				Transaction transaction= new Transaction
-				loanSubsystem.SQLinteface.insertTransaction(transaction);
+				MonthlyTransaction transaction= new MonthlyTransaction(  entry.getValue().getLoanId(),entry.getValue().getAmount(),startDate,entry.getValue().getAccountID(),i,entry.getValue().getFinalDate());
+				
+				startDate=startDate.next();
+						loanSubsystem.SQLinteface.insertTransaction(transaction);
 				
 			}
 		}
