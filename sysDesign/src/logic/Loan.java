@@ -11,28 +11,26 @@ public class Loan {
 	private Date firstPaymentDate;
 	private int loanId;
 	private boolean isRelevant;
-	private int accountID; 
 	
-	public Loan(int accountID,int loanId , float amount, Date firstPaymentDate , Date finalDate , boolean isRelevant) {
-		this.accountID=accountID;
+	private int accountId;
+	
+	public Loan(int loanId , float amount, Date firstPaymentDate , Date finalDate , boolean isRelevant , int accountId) {
+		this.accountId = accountId;
 		this.loanId = loanId;
 		this.amount = amount;
 		this.finalDate = finalDate;
 		this.firstPaymentDate = firstPaymentDate;
 	}
 	
-	public Loan(int accountID,float amount, Date finalDate, Date firstPaymentDate) throws Exception {
-		this.amount = amount;
-		this.finalDate = finalDate;
-		this.firstPaymentDate = firstPaymentDate;
-		this.accountID=accountID;
+	public Loan(float amount , Date firstPaymentDate , Date finalDate, boolean isRelevant , int accountId) throws Exception {
+		this(0 , amount , firstPaymentDate , finalDate , isRelevant , accountId);
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		this.loanId = db.insertLoan(amount, firstPaymentDate, finalDate);
 	}
 	
-	public int getAccountID(){
-		return this.accountID;
+	public int getAccountId(){
+		return this.accountId;
 	}
 
 	public float getAmount() {

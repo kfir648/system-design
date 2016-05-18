@@ -14,7 +14,7 @@ public class DataBaseInstall {
 	private static Statement s;
 	private static String protocol = "jdbc:derby:";
 
-	String table[] = { "Worker" ,"Account", "Customer", "Customer_Account", "Loan", "Saving", "Account_Loans", "Account_Savings",
+	String table[] = { "Worker" ,"Account", "Customer", "Customer_Account", "Loan", "Saving",
 			"Transactions", "Same_Bank_Transfer", "Other_Bank_Transfer", "Saving_transfer", "Loan_transfer" };
 
 	String query[] = {
@@ -52,13 +52,11 @@ public class DataBaseInstall {
 					+ " monthly_Deposit float NOT NULL," 
 					+ " start_Date varchar(12)," 
 					+ " final_Date varchar(12),"
-					+ "account_ID int,"
-					+ "FOREIGN KEY (account_ID) REFERENCES Account(account_ID), "
+					+ " account_ID int,"
+					+ " FOREIGN KEY (account_ID) REFERENCES Account(account_ID), "
 					+ " PRIMARY KEY (saving_ID))",
 
-		
-
-			"Transactions("
+			" Transactions("
 					+ " transaction_ID int NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1000, INCREMENT BY 1),"
 					+ " amount float," 
 					+ " Date varchar(12)," 
@@ -67,7 +65,7 @@ public class DataBaseInstall {
 					+ " PRIMARY KEY (transaction_ID)," 
 					+ " FOREIGN KEY (account_ID) REFERENCES Account(account_ID))",
 
-			"Same_Bank_Transfer(" 
+			" Same_Bank_Transfer(" 
 					+ " transaction_ID int," 
 					+ " source_Id int ," 
 					+ " dest_Id int ,"
