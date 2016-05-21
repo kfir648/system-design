@@ -26,7 +26,7 @@ public class Loan {
 		this(0 , amount , firstPaymentDate , finalDate , isRelevant , accountId);
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();
-		this.loanId = db.insertLoan(amount, firstPaymentDate, finalDate);
+		this.loanId = db.insertLoan(amount, firstPaymentDate, finalDate,accountId);
 	}
 	
 	public int getAccountId(){

@@ -26,15 +26,11 @@ public interface DatabaseInterface {
 	public void insertCustomer(int customerId, String customerName) throws Exception;
 
 	public int insertLoan(float amount, logic.Date startDate,
-			logic.Date finalDate) throws Exception;
+			logic.Date finalDate , int accountId) throws Exception;
 
-	public int insertSaving(float monthlyDeposit, logic.Date startDate, logic.Date finalDate) throws Exception;
+	public int insertSaving(float monthlyDeposit, logic.Date startDate, logic.Date finalDate , int accountId) throws Exception;
 	
 	public void insertBindCustomerAccount(int accountId, int customerId) throws Exception;
-
-	public void insertAccountLoans(int accountID, int loanID) throws Exception; 
-
-	public void insertAccountSavings(int accountID, int savingID) throws Exception; 
 
 	public int insertTransaction(Transaction transaction) throws Exception;
 	

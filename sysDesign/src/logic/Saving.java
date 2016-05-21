@@ -10,20 +10,22 @@ public class Saving {
 	private float monthlyPayment;
 	private Date startSavingDate;
 	private Date finalSavingsDate;
+	private boolean isRelevant;
 	private int accountId;
 	
-	public Saving(int savingId , float monthlyPayment , Date startSavingDate , Date finalSavingsDate , int accountId) {
+	public Saving(int savingId , float monthlyPayment , Date startSavingDate , Date finalSavingsDate , boolean isRelevant , int accountId) {
 		this.startSavingDate = startSavingDate;
 		this.finalSavingsDate = finalSavingsDate;
 		this.monthlyPayment = monthlyPayment;
 		this.savingId = savingId;
+		this.isRelevant = isRelevant;
 	}
 	
 	public Saving( float monthlyPayment , Date startSavingDate ,Date finalSavingsDate , int accountId) throws Exception {
-		this(0 , monthlyPayment , startSavingDate , finalSavingsDate , accountId);
+		this(0 , monthlyPayment , startSavingDate , finalSavingsDate , true , accountId);
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();
-		savingId = db.insertSaving(monthlyPayment, startSavingDate, finalSavingsDate);
+		savingId = db.insertSaving(monthlyPayment, startSavingDate, finalSavingsDate,accountId);
 	}
 	
 	public int getAccountId() {
@@ -69,8 +71,8 @@ public class Saving {
 
 	@Override
 	public String toString() {
-		return "Saving [savingId=" + savingId + ", monthlyPaymentNumber=" + monthlyPayment + ", startSavingDate="
-				+ startSavingDate + ", finalSavingsDate=" + finalSavingsDate + "]";
+		return "Saving [saving Id:" + savingId + ", monthly Payment Number:" + monthlyPayment + ", start Saving Date:"
+				+ startSavingDate + ", final Savings Date:" + finalSavingsDate + ", " + (isRelevant?"relevant":"irrelevant") + " , Account id:" + accountId + "]";
 	}
 
 	

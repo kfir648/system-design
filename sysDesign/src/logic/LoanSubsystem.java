@@ -25,8 +25,7 @@ public class LoanSubsystem {
 	
 	
 	public void insertLoan (float amount,logic.Date startDate, logic.Date finalDate, int accountId) throws Exception{
-		SQLinteface.insertAccountLoans(accountId, SQLinteface.insertLoan(amount, startDate, finalDate)); 
-		
+		SQLinteface.insertLoan(amount, startDate, finalDate , accountId); 
 	}
 	
 	
@@ -61,7 +60,7 @@ public class LoanSubsystem {
 			Date startDate=entry.getValue().getFirstPaymentDate();
 			numOfPayments=startDate.howManyMonths(startDate.getNow());
 			for(int i=0;i<numOfPayments;i++){
-				MonthlyTransaction transaction= new MonthlyTransaction(  entry.getValue().getLoanId(),entry.getValue().getAmount(),startDate,entry.getValue().getAccountID(),i,entry.getValue().getFinalDate());
+				MonthlyTransaction transaction = new MonthlyTransaction(entry.getValue().getLoanId(),entry.getValue().getAmount(),startDate,entry.getValue().getAccountId(),i,entry.getValue().getFinalDate());
 				
 				startDate=startDate.next();
 				loanSubsystem.SQLinteface.insertTransaction(transaction);

@@ -26,11 +26,9 @@ public class SaivingsSubsystem {
 		SQLinteface = DataBaseService.getDataBaseService();
 	}
 
-	public void createSavings(float amount , Date startDate, Date finalDate,int accountId) throws Exception{
-		
-		int saivingsId=SQLinteface.insertSaving(amount, startDate, startDate);	
-		SQLinteface.insertAccountSavings(accountId, saivingsId);
-		}
+	public void createSavings(float amount , Date startDate, Date finalDate,int accountId) throws Exception{	
+		int saivingsId=SQLinteface.insertSaving(amount, startDate, startDate , accountId);	
+	}
 	
 	public Set<logic.Saving> getSavingByAccountID (int id) throws SQLException{
 		return SQLinteface.getSavingByAccountID(id);
