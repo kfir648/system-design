@@ -34,7 +34,7 @@ public class SaivingsSubsystem {
 		return SQLinteface.getSavingByAccountID(id);
 	}
 	
-	public Set<logic.Saving> getSavingsBycustomerID (int id) throws SQLException{
+	public Set<logic.Saving> getSavingsByCustomerID (int id) throws SQLException{
 		Set<Account> Accounts =SQLinteface.getAccountsByCustomerID(id);
 		Set<Saving> savings= new LinkedHashSet<>();
 		for (Account acc : Accounts){

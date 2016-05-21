@@ -23,7 +23,8 @@ public class DataBaseService implements DatabaseInterface {
 	private static final int LOAN_TRANS_ID = 1;
 	private static final int SAME_BANK_TRANS_ID = 2;
 	private static final int OTHER_BANK_ID = 3;
-
+	private static final int REGULAR_TRANS_ID = 4;
+	
 	private static final String BANK_FILE_NAME = "myBank.dat"; // bankId ,
 																// savingIntrest
 																// , loanIntrest
@@ -282,6 +283,8 @@ public class DataBaseService implements DatabaseInterface {
 				transType = SAME_BANK_TRANS_ID;
 			} else if (transaction instanceof OtherBankTransfer) {
 				transType = OTHER_BANK_ID;
+			} else {
+				transType = REGULAR_TRANS_ID;
 			}
 
 			psInsert.setFloat(1, transaction.getAmount());
@@ -574,13 +577,13 @@ public class DataBaseService implements DatabaseInterface {
 		Transaction trans = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String startStat = "select Transactions.transaction_ID , amount , Date , account_id ,";
+		String startStat = "select Transactions.transaction_ID , amount , Date , account_id ";
 		String mounthly = " payment_Number , final_Date , ";
 		String fromS = " , Transactions ";
 		String where = " where Transactions.transaction_ID = ";
 		switch (type) {
 		case SAVING_TRANS_ID:
-			statement = conn.prepareStatement(startStat + mounthly + " saving_id form Saving_transfer " + fromS + where + id + " AND Saving_transfer.transaction_ID = Transactions.transaction_ID" );
+			statement = conn.prepareStatement(startStat + mounthly + " , saving_id form Saving_transfer " + fromS + where + id + " AND Saving_transfer.transaction_ID = Transactions.transaction_ID" );
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new SavingTransaction(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
@@ -588,7 +591,7 @@ public class DataBaseService implements DatabaseInterface {
 			break;
 
 		case LOAN_TRANS_ID:
-			statement = conn.prepareStatement(startStat + mounthly + "loan_id from loan_fransfer " + fromS + where + id + " AND loan_fransfer.transaction_ID = Transactions.transaction_ID" );
+			statement = conn.prepareStatement(startStat + mounthly + " , loan_id from loan_fransfer " + fromS + where + id + " AND loan_fransfer.transaction_ID = Transactions.transaction_ID" );
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new LoanTransaction(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
@@ -597,7 +600,7 @@ public class DataBaseService implements DatabaseInterface {
 
 		case SAME_BANK_TRANS_ID:
 			//System.out.println(startStat + "source_Id , dest_id from same_bank_transfer " + fromS + where + id + " AND same_bank_transfer.transaction_ID = Transactions.transaction_ID");
-			statement = conn.prepareStatement(startStat + "source_Id , dest_id from same_bank_transfer " + fromS + where + id + " AND same_bank_transfer.transaction_ID = Transactions.transaction_ID");
+			statement = conn.prepareStatement(startStat + " , source_Id , dest_id from same_bank_transfer " + fromS + where + id + " AND same_bank_transfer.transaction_ID = Transactions.transaction_ID");
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new SameBankTransfer(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
@@ -606,12 +609,19 @@ public class DataBaseService implements DatabaseInterface {
 
 		case OTHER_BANK_ID:
 			statement = conn.prepareStatement(startStat
-					+ "source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id from other_bank_transfer , req_id "
+					+ " , source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id from other_bank_transfer , req_id "
 					+ " from other_bank_transfer " + fromS + where + id + " AND other_bank_transfer.transaction_ID = Transactions.transaction_ID" );
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new OtherBankTransfer(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
 					rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9));
+			break;
+			
+		case REGULAR_TRANS_ID:
+			statement = conn.prepareStatement(startStat + " from transactions " + where + id);
+			rs = statement.executeQuery();
+			rs.next();
+			trans = new Transaction(rs.getInt(1) , rs.getFloat(2) , Date.getDateFromString(rs.getString(3)) , rs.getInt(4));
 			break;
 		}
 		if (statement != null)

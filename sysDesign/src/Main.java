@@ -366,6 +366,7 @@ public class Main {
 		} while (amount <= 0);
 		try {
 			account.setAccountBalance(account.getAccountBalance() + amount);
+			new Transaction(amount, Date.getNow(), account.getAccountId());
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -401,6 +402,7 @@ public class Main {
 			case 'y':
 				try {
 					acc.setAccountBalance(balance - amount);
+					new Transaction(-amount, Date.getNow(), acc.getAccountId());
 					System.out.println("Your current balance is: " + acc.getAccountBalance());
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
@@ -470,7 +472,7 @@ public class Main {
 	}
 
 	private static Saving getSaving() {
-		System.out.println("1 - Get savings by loan ID ");
+		System.out.println("1 - Get savings by saving ID ");
 		System.out.println("2 - Get savings by customer ID ");
 		System.out.println("3 - get savings by account ID ");
 		int select = s.nextInt();
@@ -495,7 +497,7 @@ public class Main {
 				System.out.println("Enter customer id:");
 				int customerID = s.nextInt();
 				s.nextLine();
-				savings = savingSub.getSavingsBycustomerID(customerID);
+				savings = savingSub.getSavingsByCustomerID(customerID);
 			} catch (SQLException e) {
 				System.out.println(e.getMessage());
 			}

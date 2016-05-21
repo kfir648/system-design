@@ -2,7 +2,10 @@ package logic;
 
 import java.sql.SQLException;
 
-public abstract class Transaction {
+import DBManegment.DataBaseService;
+import DBManegment.DatabaseInterface;
+
+public class Transaction {
 
 	private int transId;
 	private float amount;
@@ -16,7 +19,17 @@ public abstract class Transaction {
 		this.accuntId = accuntId;
 	}
 	
-	public abstract String showAllDetails() throws SQLException;
+	public Transaction(float amount, Date transactionDate , int accuntId) throws Exception
+	{
+		this(0 , amount , transactionDate , accuntId);
+		
+		DatabaseInterface databaseInterface = DataBaseService.getDataBaseService();
+		this.transId = databaseInterface.insertTransaction(this);
+	}
+	
+	public String showAllDetails() throws Exception {
+		return toString();
+	}
 	
 	public int getAccuntId() {
 		return accuntId;

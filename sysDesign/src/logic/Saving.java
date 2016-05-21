@@ -19,6 +19,7 @@ public class Saving {
 		this.monthlyPayment = monthlyPayment;
 		this.savingId = savingId;
 		this.isRelevant = isRelevant;
+		this.accountId = accountId;
 	}
 	
 	public Saving( float monthlyPayment , Date startSavingDate ,Date finalSavingsDate , int accountId) throws Exception {
