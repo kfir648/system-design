@@ -84,11 +84,11 @@ public interface DatabaseInterface {
 	
 	public void setLoanIrrelevant(int loanId) throws SQLException;
 
-	public Map<Integer, Set<LoanTransaction>> getAllRelevantLoanTransaction() throws Exception;
+	public Map<Integer, Map<Date , LoanTransaction>> getAllRelevantLoanTransaction() throws Exception;
 
 	public Map<Integer, Saving> getRelevantSavings() throws Exception;
 
-	public Map<Integer, Set<SavingTransaction>> getAllRelevantSavingTransaction() throws Exception ;
+	public Map<Integer, Map<Date ,SavingTransaction>> getAllRelevantSavingTransaction() throws Exception ;
 	
 	public void setSavingIrrelevant(int loanId) throws SQLException;
 }

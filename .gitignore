@@ -1,4 +1,5 @@
-sysDesign/metadata/
+/.metadata
+
 bin/
 tmp/
 *.tmp

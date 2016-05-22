@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Set;
@@ -92,58 +94,8 @@ public class OtherBankTrans {
 	}
 
 	private OtherBankTrans() throws RemoteException, NotBoundException {
-		//Registry registry = LocateRegistry.getRegistry("LOCALHOST");
-		server = new IBTS() {
-			
-			@Override
-			public void send(String secret, int reqId, int senderBankId, int senderAccountId, int receiverBankId,
-					int receiverAccountId, int amount) throws RemoteException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void reject(String secret, int receiverBankId, int accountId, int reqId)
-					throws RemoteException, TransferException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public Set<TransferRequestTuple> getNewRequestsFor(String secret, int receiverBankId, int numReqs)
-					throws RemoteException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public Set<TransferResult> getCompletedRequestsOf(String secret, int senderBankId, int numReqs)
-					throws RemoteException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public void deleteRequest(String secret, int senderBankId, int senderAccountId, int reqId)
-					throws RemoteException, TransferException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public int allocateBlock(int numIds) throws RemoteException, IOException {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-			
-			@Override
-			public void accept(String secret, int receiverBankId, int accountId, int reqId)
-					throws RemoteException, TransferException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				
-			}
-		}; 
-		///(IBTS) registry.lookup(NAME);
+		Registry registry = LocateRegistry.getRegistry("LOCALHOST");
+		server = (IBTS) registry.lookup(NAME);
 
 		threadWorking = true;
 		thread = new Thread(new Runnable() {

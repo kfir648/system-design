@@ -24,7 +24,7 @@ public class DataBaseService implements DatabaseInterface {
 	private static final int SAME_BANK_TRANS_ID = 2;
 	private static final int OTHER_BANK_ID = 3;
 	private static final int REGULAR_TRANS_ID = 4;
-	
+
 	private static final String BANK_FILE_NAME = "myBank.dat"; // bankId ,
 																// savingIntrest
 																// , loanIntrest
@@ -49,14 +49,15 @@ public class DataBaseService implements DatabaseInterface {
 	}
 
 	private void addFirstManager() throws SQLException {
-		try{
-		PreparedStatement s = conn
-				.prepareStatement("insert into worker(user_name , passward , permission_type) values(?,?,?)");
-		s.setString(1, "lior knafo");
-		s.setString(2, "12345");
-		s.setInt(3, 0);
-		s.executeUpdate();
-		}catch(Exception e){}
+		try {
+			PreparedStatement s = conn
+					.prepareStatement("insert into worker(user_name , passward , permission_type) values(?,?,?)");
+			s.setString(1, "lior knafo");
+			s.setString(2, "12345");
+			s.setInt(3, 0);
+			s.executeUpdate();
+		} catch (Exception e) {
+		}
 	}
 
 	public static DataBaseService getDataBaseService() throws SQLException {
@@ -182,7 +183,7 @@ public class DataBaseService implements DatabaseInterface {
 	}
 
 	@Override
-	public int insertLoan(float amount, Date startDate, Date finalDate , int accountId) throws Exception {
+	public int insertLoan(float amount, Date startDate, Date finalDate, int accountId) throws Exception {
 		int loanID;
 
 		if (startDate == null || finalDate == null)
@@ -215,7 +216,7 @@ public class DataBaseService implements DatabaseInterface {
 	}
 
 	@Override
-	public int insertSaving(float monthlyDeposit, Date startDate, Date finalDate , int accountId) throws Exception {
+	public int insertSaving(float monthlyDeposit, Date startDate, Date finalDate, int accountId) throws Exception {
 
 		int savingID;
 		ResultSet rs = null;
@@ -273,7 +274,8 @@ public class DataBaseService implements DatabaseInterface {
 		int transType = 0;
 		PreparedStatement psInsert = null;
 		try {
-			psInsert = conn.prepareStatement("insert into Transactions(amount, date , trans_Type , account_id) VALUES(?,?,?,?)",
+			psInsert = conn.prepareStatement(
+					"insert into Transactions(amount, date , trans_Type , account_id) VALUES(?,?,?,?)",
 					new String[] { "TRANSACTION_ID" });
 			if (transaction instanceof SavingTransaction) {
 				transType = SAVING_TRANS_ID;
@@ -294,7 +296,7 @@ public class DataBaseService implements DatabaseInterface {
 			psInsert.executeUpdate();
 
 			ResultSet rs = psInsert.getGeneratedKeys();
-			
+
 			rs.next();
 
 			transaction.setId(rs.getInt(1));
@@ -521,9 +523,7 @@ public class DataBaseService implements DatabaseInterface {
 
 		Set<Saving> savings = new LinkedHashSet<>();
 
-		PreparedStatement psGet = conn
-				.prepareStatement(" select *"
-								+ " from Saving where account_id=(?) ");
+		PreparedStatement psGet = conn.prepareStatement(" select *" + " from Saving where account_id=(?) ");
 
 		psGet.setInt(1, id);
 
@@ -531,7 +531,7 @@ public class DataBaseService implements DatabaseInterface {
 
 		while (rs.next())
 			savings.add(new Saving(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-					Date.getDateFromString(rs.getString(4)), rs.getInt(5) == 1 , rs.getInt(6)));
+					Date.getDateFromString(rs.getString(4)), rs.getInt(5) == 1, rs.getInt(6)));
 
 		psGet.close();
 		rs.close();
@@ -583,7 +583,8 @@ public class DataBaseService implements DatabaseInterface {
 		String where = " where Transactions.transaction_ID = ";
 		switch (type) {
 		case SAVING_TRANS_ID:
-			statement = conn.prepareStatement(startStat + mounthly + " , saving_id form Saving_transfer " + fromS + where + id + " AND Saving_transfer.transaction_ID = Transactions.transaction_ID" );
+			statement = conn.prepareStatement(startStat + mounthly + " , saving_id form Saving_transfer " + fromS
+					+ where + id + " AND Saving_transfer.transaction_ID = Transactions.transaction_ID");
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new SavingTransaction(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
@@ -591,7 +592,8 @@ public class DataBaseService implements DatabaseInterface {
 			break;
 
 		case LOAN_TRANS_ID:
-			statement = conn.prepareStatement(startStat + mounthly + " , loan_id from loan_fransfer " + fromS + where + id + " AND loan_fransfer.transaction_ID = Transactions.transaction_ID" );
+			statement = conn.prepareStatement(startStat + mounthly + " , loan_id from loan_fransfer " + fromS + where
+					+ id + " AND loan_fransfer.transaction_ID = Transactions.transaction_ID");
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new LoanTransaction(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
@@ -599,8 +601,12 @@ public class DataBaseService implements DatabaseInterface {
 			break;
 
 		case SAME_BANK_TRANS_ID:
-			//System.out.println(startStat + "source_Id , dest_id from same_bank_transfer " + fromS + where + id + " AND same_bank_transfer.transaction_ID = Transactions.transaction_ID");
-			statement = conn.prepareStatement(startStat + " , source_Id , dest_id from same_bank_transfer " + fromS + where + id + " AND same_bank_transfer.transaction_ID = Transactions.transaction_ID");
+			// System.out.println(startStat + "source_Id , dest_id from
+			// same_bank_transfer " + fromS + where + id + " AND
+			// same_bank_transfer.transaction_ID =
+			// Transactions.transaction_ID");
+			statement = conn.prepareStatement(startStat + " , source_Id , dest_id from same_bank_transfer " + fromS
+					+ where + id + " AND same_bank_transfer.transaction_ID = Transactions.transaction_ID");
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new SameBankTransfer(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
@@ -610,18 +616,20 @@ public class DataBaseService implements DatabaseInterface {
 		case OTHER_BANK_ID:
 			statement = conn.prepareStatement(startStat
 					+ " , source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id from other_bank_transfer , req_id "
-					+ " from other_bank_transfer " + fromS + where + id + " AND other_bank_transfer.transaction_ID = Transactions.transaction_ID" );
+					+ " from other_bank_transfer " + fromS + where + id
+					+ " AND other_bank_transfer.transaction_ID = Transactions.transaction_ID");
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new OtherBankTransfer(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
 					rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9));
 			break;
-			
+
 		case REGULAR_TRANS_ID:
 			statement = conn.prepareStatement(startStat + " from transactions " + where + id);
 			rs = statement.executeQuery();
 			rs.next();
-			trans = new Transaction(rs.getInt(1) , rs.getFloat(2) , Date.getDateFromString(rs.getString(3)) , rs.getInt(4));
+			trans = new Transaction(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
+					rs.getInt(4));
 			break;
 		}
 		if (statement != null)
@@ -637,7 +645,6 @@ public class DataBaseService implements DatabaseInterface {
 		ResultSet rs = statement.executeQuery();
 		rs.next();
 
-		
 		Loan loan = new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
 				Date.getDateFromString(rs.getString(4)), rs.getInt(5) == 1, rs.getInt(6));
 		rs.close();
@@ -647,16 +654,13 @@ public class DataBaseService implements DatabaseInterface {
 
 	@Override
 	public Saving getSavingById(int id) throws SQLException {
-		PreparedStatement statement = conn
-				.prepareStatement(" select *"
-								+ " from saving where saving_id = " + id);
+		PreparedStatement statement = conn.prepareStatement(" select *" + " from saving where saving_id = " + id);
 
 		ResultSet rs = statement.executeQuery();
 		rs.next();
 
-		
 		Saving saving = new Saving(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-				Date.getDateFromString(rs.getString(4)), rs.getInt(5) == 1 , rs.getInt(6));
+				Date.getDateFromString(rs.getString(4)), rs.getInt(5) == 1, rs.getInt(6));
 		rs.close();
 		statement.close();
 		return saving;
@@ -782,8 +786,8 @@ public class DataBaseService implements DatabaseInterface {
 	}
 
 	@Override
-	public Map<Integer, Set<LoanTransaction>> getAllRelevantLoanTransaction() throws Exception {
-		Map<Integer, Set<LoanTransaction>> out = new LinkedHashMap<>();
+	public Map<Integer, Map<Date, LoanTransaction>> getAllRelevantLoanTransaction() throws Exception {
+		Map<Integer, Map<Date, LoanTransaction>> out = new LinkedHashMap<>();
 		PreparedStatement statement = conn.prepareStatement(
 				" select loan_id , transactions.transaction_id , transactions.amount , account_id , payment_Number , final_Date , loan_id"
 						+ " from transactions , Loan_transfer "
@@ -794,12 +798,12 @@ public class DataBaseService implements DatabaseInterface {
 		while (rs.next()) {
 			int loanId = rs.getInt(1);
 			if (!out.containsKey(rs.getInt(1))) {
-				out.put(loanId, new LinkedHashSet<>());
+				out.put(loanId, new LinkedHashMap<>());
 			}
-			Set<LoanTransaction> loanTransactions = out.get(loanId);
-			loanTransactions
-					.add(new LoanTransaction(rs.getInt(2), rs.getFloat(3), Date.getDateFromString(rs.getString(4)),
-							rs.getInt(5), rs.getInt(6), Date.getDateFromString(rs.getString(7)), rs.getInt(8)));
+			Date date = Date.getDateFromString(rs.getString(4));
+			Map<Date, LoanTransaction> loanTransactions = out.get(loanId);
+			loanTransactions.put(date, new LoanTransaction(rs.getInt(2), rs.getFloat(3), date, rs.getInt(5),
+					rs.getInt(6), Date.getDateFromString(rs.getString(7)), rs.getInt(8)));
 		}
 		return out;
 	}
@@ -811,14 +815,14 @@ public class DataBaseService implements DatabaseInterface {
 		Map<Integer, Saving> savings = new LinkedHashMap<>();
 		while (rs.next()) {
 			savings.put(rs.getInt(1), new Saving(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-					Date.getDateFromString(rs.getString(4)), rs.getInt(5) == 1 , rs.getInt(6)));
+					Date.getDateFromString(rs.getString(4)), rs.getInt(5) == 1, rs.getInt(6)));
 		}
 		return savings;
 	}
 
 	@Override
-	public Map<Integer, Set<SavingTransaction>> getAllRelevantSavingTransaction() throws Exception {
-		Map<Integer, Set<SavingTransaction>> out = new LinkedHashMap<>();
+	public Map<Integer, Map<Date, SavingTransaction>> getAllRelevantSavingTransaction() throws Exception {
+		Map<Integer, Map<Date, SavingTransaction>> out = new LinkedHashMap<>();
 		PreparedStatement statement = conn.prepareStatement(
 				" select saving_id , transactions.transaction_id , transactions.amount , account_id , payment_Number , final_Date , saving_id"
 						+ " from transactions , saving_transfer "
@@ -829,12 +833,12 @@ public class DataBaseService implements DatabaseInterface {
 		while (rs.next()) {
 			int savingId = rs.getInt(1);
 			if (!out.containsKey(rs.getInt(1))) {
-				out.put(savingId, new LinkedHashSet<>());
+				out.put(savingId, new LinkedHashMap<>());
 			}
-			Set<SavingTransaction> savingTransactions = out.get(savingId);
-			savingTransactions
-					.add(new SavingTransaction(rs.getInt(2), rs.getFloat(3), Date.getDateFromString(rs.getString(4)),
-							rs.getInt(5), rs.getInt(6), Date.getDateFromString(rs.getString(7)), rs.getInt(8)));
+			Map<Date, SavingTransaction> savingTransactions = out.get(savingId);
+			Date date = Date.getDateFromString(rs.getString(4));
+			savingTransactions.put(date, new SavingTransaction(rs.getInt(2), rs.getFloat(3), date, rs.getInt(5),
+					rs.getInt(6), Date.getDateFromString(rs.getString(7)), rs.getInt(8)));
 		}
 		return out;
 	}
