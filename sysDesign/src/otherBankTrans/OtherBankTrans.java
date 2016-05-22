@@ -105,8 +105,13 @@ public class OtherBankTrans {
 			}
 			
 			@Override
+<<<<<<< HEAD
 			public void reject(String secret, int receiverBankId, int accountId, int reqId) throws RemoteException,
 					TransferException, SQLException, AuthException {
+=======
+			public void reject(String secret, int receiverBankId, int accountId, int reqId)
+					throws RemoteException, TransferException, SQLException, AuthException {
+>>>>>>> origin/develop
 				// TODO Auto-generated method stub
 				
 			}
@@ -126,8 +131,13 @@ public class OtherBankTrans {
 			}
 			
 			@Override
+<<<<<<< HEAD
 			public void deleteRequest(String secret, int senderBankId, int senderAccountId, int reqId) throws RemoteException,
 					TransferException, SQLException, AuthException {
+=======
+			public void deleteRequest(String secret, int senderBankId, int senderAccountId, int reqId)
+					throws RemoteException, TransferException, SQLException, AuthException {
+>>>>>>> origin/develop
 				// TODO Auto-generated method stub
 				
 			}
@@ -139,12 +149,21 @@ public class OtherBankTrans {
 			}
 			
 			@Override
+<<<<<<< HEAD
 			public void accept(String secret, int receiverBankId, int accountId, int reqId) throws RemoteException,
 					TransferException, SQLException, AuthException {
 				// TODO Auto-generated method stub
 				
 			}
 		};////(IBTS) registry.lookup(NAME);
+=======
+			public void accept(String secret, int receiverBankId, int accountId, int reqId)
+					throws RemoteException, TransferException, SQLException, AuthException {
+				// TODO Auto-generated method stub
+				
+			}
+		}; //(IBTS) registry.lookup(NAME);
+>>>>>>> origin/develop
 
 		threadWorking = true;
 		thread = new Thread(new Runnable() {

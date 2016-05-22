@@ -1,0 +1,7 @@
+diff a/.gitignore b/.gitignore	(rejected hunks)
+@@ -50,3 +50,5 @@
+ .recommenders/
+ sysDesign/myBank/
+ .metadata/
++myBank/
++sysDesign/derby.log
