@@ -55,8 +55,9 @@ public class LoanSubsystem {
 					.compareTo(Date.getNow()) < 0; startDate = startDate.next(), i++) {
 				Map<Date, LoanTransaction> transactions = loanTransactions.get(loanId);
 				if (!transactions.containsKey(startDate)) {
-					new MonthlyTransaction(loanId, loans.get(loanId).getAmount(),
-							startDate, loans.get(loanId).getAccountId(), i, loans.get(loanId).getFinalDate());
+					Loan loan = loans.get(loanId);
+					new LoanTransaction(loan.getAmount(), startDate, loan.getAccountId(), i, loan.getFinalDate(),
+							loanId);
 				}
 			}
 		}
