@@ -1,4 +1,4 @@
-.metadata
+sysDesign/metadata/
 bin/
 tmp/
 *.tmp
@@ -50,3 +50,4 @@ local.properties
 # Code Recommenders
 .recommenders/
 sysDesign/myBank/
+.metadata/
