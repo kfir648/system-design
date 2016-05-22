@@ -52,3 +52,4 @@ local.properties
 .recommenders/
 sysDesign/myBank/
 .metadata/
+sysDesign/derby.log
