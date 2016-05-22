@@ -16,7 +16,7 @@ import api_otherBank.IBTS;
 import api_otherBank.transf.TransferException;
 import api_otherBank.transf.TransferRequestTuple;
 import api_otherBank.transf.TransferResult;
-import logic.Account;
+import logic.classes.Account;
 
 public class OtherBankTrans {
 	private IBTS server;

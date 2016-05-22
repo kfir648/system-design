@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
-Sat May 14 14:00:39 IDT 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0154-aeec-dee1-000003352e08 
+Sun May 22 08:12:00 IDT 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0154-d6e0-8a76-000003303bb8 
 on database directory C:\Users\lior\Documents\system-design\sysDesign\myBank with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
 Loaded from file:/C:/Users/lior/Documents/system-design/sysDesign/derbyDB/derby.jar
 java.vendor=Oracle Corporation
@@ -11,9 +11,3 @@ os.arch=amd64
 os.version=10.0
 derby.system.home=null
 Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Sat May 14 14:00:41 IDT 2016: Shutting down Derby engine
-----------------------------------------------------------------
-Sat May 14 14:00:42 IDT 2016:
-Shutting down instance a816c00e-0154-aeec-dee1-000003352e08 on database directory C:\Users\lior\Documents\system-design\sysDesign\myBank with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
-----------------------------------------------------------------

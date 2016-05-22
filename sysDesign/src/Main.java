@@ -6,13 +6,17 @@ import java.util.Set;
 
 import api_otherBank.transf.TransferRequestTuple;
 import api_otherBank.transf.TransferResult;
-import logic.*;
-import logic.Worker.PermissionType;
 import otherBankTrans.ConformEvent;
 import otherBankTrans.ConformTransactionListener;
 import otherBankTrans.OtherBankTrans;
 import otherBankTrans.TransactionEvent;
 import otherBankTrans.TransactionListener;
+import logic.classes.*;
+import logic.classes.Worker.PermissionType;
+import logic.subsystem.AccountManagmentSubsystem;
+import logic.subsystem.LoanSubsystem;
+import logic.subsystem.SaivingsSubsystem;
+import logic.subsystem.TransactionSubsystem;
 
 public class Main {
 
@@ -38,7 +42,6 @@ public class Main {
 				permission = worker.getPermission();
 				secssed = true;
 			} catch (Exception e) {
-
 				System.out.println("User name dose not exeist!!!");
 			}
 		}
@@ -65,7 +68,7 @@ public class Main {
 				System.out.println("[E/e] = toExit");
 				break;
 			}
-			char selection = s.next().charAt(0);
+			char selection = s.nextLine().charAt(0);
 
 			switch (selection) {
 			case 'A':
@@ -134,16 +137,17 @@ public class Main {
 				System.out.println("Wrong input");
 				break;
 			}
-			s.close();
-			OtherBankTrans.closeConnection();
 		}
+		OtherBankTrans.closeConnection();
+		
+		s.close();
 	}
 
 	private static void CreateTransfer() throws Exception {
 		System.out.println("Enter the type of transaction you want to create 1 - same bank , 2 - other bank");
 		char c;
 		do {
-			c = s.next().charAt(0);
+			c = s.nextLine().charAt(0);
 			if (c != '1' && c != '2')
 				System.out.println("Wrong input");
 		} while (c != '1' && c != '2');
@@ -164,6 +168,7 @@ public class Main {
 				float amount;
 				do {
 					amount = s.nextFloat();
+					s.nextLine();
 					if (preBalSource < amount)
 						System.out.println("You entered more the you can send");
 				} while (preBalSource < amount);
@@ -183,6 +188,7 @@ public class Main {
 				do {
 					System.out.println("Enter the amount to transfer");
 					amount = s.nextFloat();
+					s.nextLine();
 					if (amount > src.getAccountBalance())
 						System.out.println("You entered more money to transfer then you have");
 				} while (amount > src.getAccountBalance());
@@ -233,6 +239,7 @@ public class Main {
 			}
 			System.out.println("Enter the transaction number to show more information -1 to exit");
 			int c = s.nextInt();
+			s.nextLine();
 			if (c == -1)
 				return;
 			if (c < 0 || c >= transArr.length)
@@ -302,6 +309,7 @@ public class Main {
 	private static Account AddAccount() {
 		System.out.println("Enter start balance");
 		int balance = s.nextInt();
+		s.nextLine();
 		try {
 			Account acc = new Account(balance);
 			System.out.println("The Account was created number:" + acc.getAccountId());
@@ -319,10 +327,15 @@ public class Main {
 			String name = s.nextLine();
 			System.out.println("Enter customer id");
 			int custId = s.nextInt();
+			s.nextLine();
 			Customer customer = new Customer(custId, name);
-			System.out.println("The customer is entered to create new Account?");
-			Account account = AddAccount();
-			customer.addAccount(account);
+			System.out.println("The customer is entered to create new Account? enter Y/N");
+			char c = s.nextLine().charAt(0);
+			if(c == 'y' || c == 'Y')
+			{
+				Account account = AddAccount();
+				customer.addAccount(account);
+			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -352,11 +365,13 @@ public class Main {
 		float amount;
 		do {
 			amount = s.nextFloat();
+			s.nextLine();
 			if (amount <= 0)
 				System.out.println("The amount most be positive number");
 		} while (amount <= 0);
 		try {
 			account.setAccountBalance(account.getAccountBalance() + amount);
+			new Transaction(amount, Date.getNow(), account.getAccountId());
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -377,20 +392,23 @@ public class Main {
 		float amount;
 		while (true) {
 			amount = s.nextFloat();
+			s.nextLine();
 			if (amount > balance)
 				System.out.println("You can't take more then you have");
 			else
 				break;
 		}
-		System.out.println("Are you sure?(Y/N");
-		char selection = s.next().charAt(0);
+		System.out.println("Are you sure?(Y/N)");
+		char selection = s.nextLine().charAt(0);
 		boolean wrongAnswer = false;
 		while (!wrongAnswer) {
+			wrongAnswer = true;
 			switch (selection) {
 			case 'Y':
 			case 'y':
 				try {
 					acc.setAccountBalance(balance - amount);
+					new Transaction(-amount, Date.getNow(), acc.getAccountId());
 					System.out.println("Your current balance is: " + acc.getAccountBalance());
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
@@ -402,7 +420,7 @@ public class Main {
 				break;
 
 			default:
-				wrongAnswer = true;
+				wrongAnswer = false;
 				break;
 			}
 		}
@@ -416,6 +434,7 @@ public class Main {
 		case '1':
 			System.out.println("Enter account id");
 			int accId = s.nextInt();
+			s.nextLine();
 			return AccountManagmentSubsystem.getaccountSubsystem().getAccountByID(accId);
 		case '2':
 			System.out.println("Enter customer id:");
@@ -426,7 +445,7 @@ public class Main {
 			accounts.toArray(accArr);
 			System.out.println("Choose account");
 			for (int i = 0; i < accArr.length; i++) {
-				System.out.println(i + accArr[i].toString());
+				System.out.println(i + " - " + accArr[i].toString());
 			}
 			int accountPos = s.nextInt();
 			if (accountPos < 0 | accountPos >= accArr.length)
@@ -454,12 +473,12 @@ public class Main {
 
 	private static void checkSavings() {
 		Saving save = getSaving();
-		System.out.println(save.toString());
-
+		if(save != null)
+			System.out.println(save.toString());
 	}
 
 	private static Saving getSaving() {
-		System.out.println("1 - Get savings by loan ID ");
+		System.out.println("1 - Get savings by saving ID ");
 		System.out.println("2 - Get savings by customer ID ");
 		System.out.println("3 - get savings by account ID ");
 		int select = s.nextInt();
@@ -470,12 +489,11 @@ public class Main {
 				SaivingsSubsystem savingSub = SaivingsSubsystem.getSavingSubsystem();
 				System.out.println("Enter saving id:");
 				int savingID = s.nextInt();
+				s.nextLine();
 				return savingSub.getSavingsByID(savingID);
 
 			} catch (SQLException e) {
-
 				System.out.println(e.getMessage());
-				;
 			}
 			break;
 
@@ -484,10 +502,10 @@ public class Main {
 				SaivingsSubsystem savingSub = SaivingsSubsystem.getSavingSubsystem();
 				System.out.println("Enter customer id:");
 				int customerID = s.nextInt();
-				savings = savingSub.getSavingsBycustomerID(customerID);
+				s.nextLine();
+				savings = savingSub.getSavingsByCustomerID(customerID);
 			} catch (SQLException e) {
 				System.out.println(e.getMessage());
-				;
 			}
 			break;
 
@@ -496,22 +514,26 @@ public class Main {
 				SaivingsSubsystem savingSub = SaivingsSubsystem.getSavingSubsystem();
 				System.out.println("Enter account id:");
 				int accountID = s.nextInt();
+				s.nextLine();
 				savings = savingSub.getSavingByAccountID(accountID);
 			} catch (SQLException e) {
 				System.out.println(e.getMessage());
-				;
 			}
 			break;
 		}
 
-		Object[] saveArry = savings.toArray();
-		System.out.println("Select savings:");
+		Saving[] saveArry = new Saving[savings.size()];
+		savings.toArray(saveArry);
+		System.out.println("Select savings: -1 to exit");
 
 		for (int i = 0; i < saveArry.length; i++) {
-			System.out.println(i + " = " + saveArry[i].toString());
+			System.out.println(i + " - " + saveArry[i].toString());
 		}
 		int selected = s.nextInt();
-		return (Saving) saveArry[selected];
+		s.nextLine();
+		if(selected == -1)
+			return null;
+		return saveArry[selected];
 
 	}
 
@@ -529,6 +551,7 @@ public class Main {
 				Date finalDate = getDate();
 				System.out.println("Enter account ID:");
 				int accountId = s.nextInt();
+				s.nextLine();
 				saveSub.createSavings(amount, startDate, finalDate, accountId);
 				break;
 			}
@@ -541,7 +564,6 @@ public class Main {
 	}
 
 	public static void addWorker(Worker manager) {
-
 		System.out.println("Enter user name:");
 		String workerUserName = s.nextLine();
 		System.out.println("Enter password:");
@@ -550,6 +572,7 @@ public class Main {
 		while (!sec) {
 			System.out.println("what is permission? [0= Teller] [1= Loan Officer] [2= Bank maneger]");
 			int permission = s.nextInt();
+			s.nextLine();
 			if (permission >= 0) {
 				if (permission <= 2) {
 
@@ -557,7 +580,6 @@ public class Main {
 					try {
 						worker.addUser(manager);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						System.out.println(e.getMessage());
 					}
 					sec = true;
@@ -596,6 +618,7 @@ public class Main {
 		System.out.println("2 - Get loan by customer ID ");
 		System.out.println("3 - get loan by account ID ");
 		int select = s.nextInt();
+		s.nextLine();
 		Set<Loan> loans = null;
 		switch (select) {
 		case 1: /// loan id
@@ -603,12 +626,11 @@ public class Main {
 				LoanSubsystem loanSub = LoanSubsystem.getLoanSubsystem();
 				System.out.println("Enter loan id:");
 				int loanID = s.nextInt();
+				s.nextLine();
 				return loanSub.getLoansByLoanID(loanID);
 
 			} catch (SQLException e) {
-
 				System.out.println(e.getMessage());
-				;
 			}
 			break;
 
@@ -617,10 +639,10 @@ public class Main {
 				LoanSubsystem loanSub = LoanSubsystem.getLoanSubsystem();
 				System.out.println("Enter customer id:");
 				int customerID = s.nextInt();
+				s.nextLine();
 				loans = loanSub.getLoansBycustomerID(customerID);
 			} catch (SQLException e) {
 				System.out.println(e.getMessage());
-				;
 			}
 			break;
 
@@ -629,21 +651,23 @@ public class Main {
 				LoanSubsystem loanSub = LoanSubsystem.getLoanSubsystem();
 				System.out.println("Enter account id:");
 				int accountID = s.nextInt();
+				s.nextLine();
 				loans = loanSub.getLoansByAccountID(accountID);
 			} catch (SQLException e) {
 				System.out.println(e.getMessage());
-				;
 			}
 			break;
 		}
 
-		Object[] loanArry = loans.toArray();
+		Loan[] loanArry = new Loan[loans.size()];
+		loans.toArray(loanArry);
 		System.out.println("Select Loan:");
 
 		for (int i = 0; i < loanArry.length; i++) {
 			System.out.println(i + " = " + loanArry[i].toString());
 		}
 		int selected = s.nextInt();
+		s.nextInt();
 		return (Loan) loanArry[selected];
 
 	}
@@ -655,12 +679,14 @@ public class Main {
 				loanSub = LoanSubsystem.getLoanSubsystem();
 				System.out.println("Enter amount:");
 				float amount = s.nextFloat();
+				s.nextLine();
 				System.out.println("Start date:");
 				Date startDate = getDate();
 				System.out.println("Final date:");
 				Date finalDate = getDate();
 				System.out.println("Enter account ID:");
 				int accountId = s.nextInt();
+				s.nextLine();
 				loanSub.insertLoan(amount, startDate, finalDate, accountId);
 				break;
 			}
@@ -677,11 +703,12 @@ public class Main {
 			System.out.println("Enter  date:");
 			System.out.println("Enter  day:");
 			int day = s.nextInt();
+			s.nextLine();
 			System.out.println("Enter month:");
 			int month = s.nextInt();
 			System.out.println("Enter year:");
 			int year = s.nextInt();
-
+			s.nextLine();
 			d = new Date(day, month, year);
 		}
 		return d;

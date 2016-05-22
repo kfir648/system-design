@@ -1,4 +1,4 @@
-package logic;
+package logic.classes;
 import java.sql.SQLException;
 
 import DBManegment.DataBaseService;
@@ -11,20 +11,26 @@ public class Loan {
 	private Date firstPaymentDate;
 	private int loanId;
 	private boolean isRelevant;
-	public Loan(int loanId , float amount, Date firstPaymentDate , Date finalDate , boolean isRelevant) {
+	
+	private int accountId;
+	
+	public Loan(int loanId , float amount, Date firstPaymentDate , Date finalDate , boolean isRelevant , int accountId) {
+		this.accountId = accountId;
 		this.loanId = loanId;
 		this.amount = amount;
 		this.finalDate = finalDate;
 		this.firstPaymentDate = firstPaymentDate;
 	}
 	
-	public Loan(float amount, Date finalDate, Date firstPaymentDate) throws Exception {
-		this.amount = amount;
-		this.finalDate = finalDate;
-		this.firstPaymentDate = firstPaymentDate;
+	public Loan(float amount , Date firstPaymentDate , Date finalDate, boolean isRelevant , int accountId) throws Exception {
+		this(0 , amount , firstPaymentDate , finalDate , isRelevant , accountId);
 		
 		DatabaseInterface db = DataBaseService.getDataBaseService();
-		this.loanId = db.insertLoan(amount, firstPaymentDate, finalDate);
+		this.loanId = db.insertLoan(amount, firstPaymentDate, finalDate,accountId);
+	}
+	
+	public int getAccountId(){
+		return this.accountId;
 	}
 
 	public float getAmount() {

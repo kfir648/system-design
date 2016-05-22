@@ -1,4 +1,4 @@
-package logic;
+package logic.classes;
 
 import java.io.IOException;
 import java.sql.SQLException;

@@ -1,10 +1,11 @@
-package logic;
+package logic.subsystem;
 
 import java.sql.SQLException;
 import java.util.Set;
 
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
+import logic.classes.*;
 
 public class AccountManagmentSubsystem {
 	private static AccountManagmentSubsystem accountSubsystem = null;
@@ -25,20 +26,20 @@ public class AccountManagmentSubsystem {
 		SQLinteface.insertAccount(balance);
 	}
 
-	public logic.Account getAccountByID(int id) throws Exception {
+	public Account getAccountByID(int id) throws Exception {
 		return SQLinteface.getAccountByID(id);
 	}
 
-	public Set<logic.Account> getAccountsByCustomerID(int id) throws SQLException {
+	public Set<Account> getAccountsByCustomerID(int id) throws SQLException {
 
 		return SQLinteface.getAccountsByCustomerID(id);
 	}
 
-	public logic.Customer getCustomerByID(int id) throws Exception {
+	public Customer getCustomerByID(int id) throws Exception {
 		return SQLinteface.getCustomerByID(id);
 	}
 
-	public Set<logic.Customer> getCustomersByAccountID(int id) throws Exception {
+	public Set<Customer> getCustomersByAccountID(int id) throws Exception {
 		return SQLinteface.getCustomersByAccountID(id);
 	}
 

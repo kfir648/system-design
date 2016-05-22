@@ -1,8 +1,9 @@
-package logic;
+package logic.classes;
 
-import java.sql.SQLException;
+import DBManegment.DataBaseService;
+import DBManegment.DatabaseInterface;
 
-public abstract class Transaction {
+public class Transaction {
 
 	private int transId;
 	private float amount;
@@ -16,7 +17,17 @@ public abstract class Transaction {
 		this.accuntId = accuntId;
 	}
 	
-	public abstract String showAllDetails() throws SQLException;
+	public Transaction(float amount, Date transactionDate , int accuntId) throws Exception
+	{
+		this(0 , amount , transactionDate , accuntId);
+		
+		DatabaseInterface databaseInterface = DataBaseService.getDataBaseService();
+		this.transId = databaseInterface.insertTransaction(this);
+	}
+	
+	public String showAllDetails() throws Exception {
+		return toString();
+	}
 	
 	public int getAccuntId() {
 		return accuntId;
@@ -47,6 +58,6 @@ public abstract class Transaction {
 
 	@Override
 	public String toString() {
-		return String.format("%6d , Date : %s , %.2f ", transId , transactionDate.toString() , amount);
+		return String.format("%s[%6d , Date : %s , %.2f] ", (amount < 0 ? "Deposite" : "Widrow") , transId , transactionDate.toString() , (amount < 0 ? -amount : amount));
 	}
 }

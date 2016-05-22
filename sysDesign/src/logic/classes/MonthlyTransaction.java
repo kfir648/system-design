@@ -1,8 +1,8 @@
-package logic;
+package logic.classes;
 
 import java.sql.SQLException;
 
-public abstract class MonthlyTransaction extends Transaction {
+public  class MonthlyTransaction extends Transaction {
 	private int paymentNumber;
 	private Date finalDate;
 	

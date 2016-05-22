@@ -6,17 +6,10 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 
-import logic.Account;
-import logic.Bank;
-import logic.Customer;
-import logic.Date;
-import logic.Loan;
-import logic.LoanTransaction;
-import logic.OtherBankTransfer;
-import logic.Saving;
-import logic.Transaction;
-import logic.Worker;
-import logic.Worker.PermissionType;
+import logic.classes.Worker.PermissionType;
+import logic.classes.*;
+import logic.classes.Date;
+
 
 public interface DatabaseInterface {
 
@@ -24,16 +17,12 @@ public interface DatabaseInterface {
 
 	public void insertCustomer(int customerId, String customerName) throws Exception;
 
-	public int insertLoan(float amount, logic.Date startDate,
-			logic.Date finalDate) throws Exception;
+	public int insertLoan(float amount, logic.classes.Date startDate,
+			logic.classes.Date finalDate , int accountId) throws Exception;
 
-	public int insertSaving(float monthlyDeposit, logic.Date startDate, logic.Date finalDate) throws Exception;
+	public int insertSaving(float monthlyDeposit, Date startDate, Date finalDate , int accountId) throws Exception;
 	
 	public void insertBindCustomerAccount(int accountId, int customerId) throws Exception;
-
-	public void insertAccountLoans(int accountID, int loanID) throws Exception; 
-
-	public void insertAccountSavings(int accountID, int savingID) throws Exception; 
 
 	public int insertTransaction(Transaction transaction) throws Exception;
 	
@@ -95,5 +84,11 @@ public interface DatabaseInterface {
 	
 	public void setLoanIrrelevant(int loanId) throws SQLException;
 
-	public Map<Integer, Set<LoanTransaction>> getAllRelevantLoanTransaction() throws Exception;
+	public Map<Integer, Map<Date , LoanTransaction>> getAllRelevantLoanTransaction() throws Exception;
+
+	public Map<Integer, Saving> getRelevantSavings() throws Exception;
+
+	public Map<Integer, Map<Date ,SavingTransaction>> getAllRelevantSavingTransaction() throws Exception ;
+	
+	public void setSavingIrrelevant(int loanId) throws SQLException;
 }
