@@ -12,9 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import sysDesign.Worker;
-import DBManegment.DataBaseService;
-import DBManegment.DatabaseInterface;
+import logic.Worker;
 
 @SuppressWarnings("serial")
 public class LogInDialog extends JDialog {
@@ -49,7 +47,6 @@ public class LogInDialog extends JDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					try {
-						DatabaseInterface db = DataBaseService.getDataBaseService();
 						Worker user = new Worker(idTextField.getText(), new String(passwordField.getPassword()));
 						superFrame.dispose();
 						new MainMenu(user.getPermission());

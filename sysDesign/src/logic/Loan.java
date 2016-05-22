@@ -1,4 +1,4 @@
-package sysDesign;
+package logic;
 import java.sql.SQLException;
 
 import DBManegment.DataBaseService;
@@ -10,8 +10,8 @@ public class Loan {
 	private Date finalDate;
 	private Date firstPaymentDate;
 	private int loanId;
-	
-	public Loan(int loanId , float amount, Date firstPaymentDate , Date finalDate) {
+	private boolean isRelevant;
+	public Loan(int loanId , float amount, Date firstPaymentDate , Date finalDate , boolean isRelevant) {
 		this.loanId = loanId;
 		this.amount = amount;
 		this.finalDate = finalDate;
@@ -56,8 +56,8 @@ public class Loan {
 	
 	@Override
 	public String toString() {
-		return "Loan [amount=" + amount + ", finalDate=" + finalDate + ", firstPaymentDate=" + firstPaymentDate
-				+ ", loanId=" + loanId + "]";
+		return "Loan [amount:" + amount + ", final Date:" + finalDate + ", first Payment Date:" + firstPaymentDate
+				+ ", loan ID:" + loanId + ", " + (isRelevant?"relevant":"irrelevant") + "]";
 	}
 
 	public void setAmount(float amount) throws SQLException {
@@ -74,4 +74,9 @@ public class Loan {
 		db.updateLoan(loanId , amount , firstPaymentDate , finalDate);
 	}
 	
+	public void setIsNotRelevant() throws SQLException {
+		isRelevant = false;
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		db.setLoanIrrelevant(loanId);
+	}
 }

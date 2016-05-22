@@ -1,4 +1,4 @@
-package sysDesign;
+package logic;
 
 import java.sql.SQLException;
 import java.util.Set;
@@ -37,6 +37,8 @@ public class Account {
 	}
 
 	public void addCustomer(Customer customer) throws Exception {
+		if(customer == null)
+			throw new Exception("The customer is null");
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		db.insertBindCustomerAccount(accountId, customer.getCustomerId());
 	}
@@ -50,4 +52,22 @@ public class Account {
 	public String toString() {
 		return "Account [accountId=" + accountId + ", accountBalance=" + accountBalance + "]";
 	}
+
+	public Set<Loan> getAllLoans() throws SQLException {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		return db.getLoansByAccountID(accountId);
+	}
+	
+	public Set<Saving> getAllSaivingsByAccountID() throws SQLException {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		return db.getSavingByAccountID(accountId);
+	}
+
+	public Set<Transaction> getAllTransaction() throws Exception {
+		DatabaseInterface db = DataBaseService.getDataBaseService();
+		return db.getHistoryTransactionByAccountID(accountId);
+	}
+	
+	
+	
 }

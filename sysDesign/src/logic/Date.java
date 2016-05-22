@@ -1,6 +1,6 @@
-package sysDesign;
+package logic;
 
-public class Date implements Cloneable{
+public class Date implements Cloneable , Comparable<Date>{
 
 	int day;
 	int month;
@@ -60,5 +60,23 @@ public class Date implements Cloneable{
 	@Override
 	public String toString() {
 		return day + "/" + month + "/" + year;
+	}
+
+	@Override
+	public int compareTo(Date o) {
+		int rs = year - o.year;
+		if(rs != 0)
+			return rs;
+		rs = month - o.month;
+		if(rs != 0)
+			return rs;
+		rs = day - o.day;
+		return rs;
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static Date getNow() {
+		java.util.Date calendar = new java.util.Date (System.currentTimeMillis());
+		return new Date(calendar.getDay(), calendar.getMonth(), calendar.getYear());
 	}
 }

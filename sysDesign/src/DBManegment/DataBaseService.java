@@ -8,12 +8,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import sysDesign.*;
-import sysDesign.Worker.PermissionType;
+import logic.*;
+import logic.Worker.PermissionType;
 
 public class DataBaseService implements DatabaseInterface {
 
@@ -186,7 +188,7 @@ public class DataBaseService implements DatabaseInterface {
 			throw new Exception("amount is negative");
 
 		PreparedStatement psInsert = conn.prepareStatement(
-				"insert into loans(amount, start_Date, final_Date) VALUES (?,?,?)", new String[] { "LOAN_ID" });
+				"insert into loans(amount, start_Date, final_Date , relevant) VALUES (?,?,?,1)", new String[] { "LOAN_ID" });
 
 		psInsert.setFloat(1, amount);
 		psInsert.setString(2, startDate.toString());
@@ -298,7 +300,7 @@ public class DataBaseService implements DatabaseInterface {
 		PreparedStatement psInsert = null;
 		try {
 			psInsert = conn.prepareStatement("insert into Transactions(amount, date , transType) VALUES(?,?,?)",
-					new String[] { "TRANSACTIONID" });
+					new String[] { "TRANSACTION_ID" });
 			if (transaction instanceof SavingTransaction) {
 				transType = SAVING_TRANS_ID;
 			} else if (transaction instanceof LoanTransaction) {
@@ -325,12 +327,13 @@ public class DataBaseService implements DatabaseInterface {
 			if (transType == OTHER_BANK_ID) {
 				OtherBankTransfer otherBankTransfer = (OtherBankTransfer) transaction;
 				psInsert = conn.prepareStatement(
-						"insert into other_bank_transfer(transaction_ID , source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id) VALUES(?,?,?,?,?)");
+						"insert into other_bank_transfer(transaction_ID , source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id , req_id , accepted) VALUES(?,?,?,?,?,?,0)");
 				psInsert.setInt(1, otherBankTransfer.getTransId());
 				psInsert.setInt(2, otherBankTransfer.getSourceAccuntId());
 				psInsert.setInt(3, otherBankTransfer.getSourceBank());
 				psInsert.setInt(4, otherBankTransfer.getDestinationAccuntId());
 				psInsert.setInt(5, otherBankTransfer.getDestinationBank());
+				psInsert.setInt(6, otherBankTransfer.getReqId());
 				psInsert.executeUpdate();
 			} else if (transType == SAME_BANK_TRANS_ID) {
 				SameBankTransfer sameBankTransfer = (SameBankTransfer) transaction;
@@ -531,7 +534,7 @@ public class DataBaseService implements DatabaseInterface {
 
 		while (!rs.next())
 			loan.add(new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-					Date.getDateFromString(rs.getString(4))));
+					Date.getDateFromString(rs.getString(4)) , rs.getInt(5) == 1));
 		
 		psGet.close();
 		rs.close();
@@ -630,12 +633,12 @@ public class DataBaseService implements DatabaseInterface {
 
 		case OTHER_BANK_ID:
 			statement = conn.prepareStatement(startStat
-					+ "source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id from other_bank_transfer "
+					+ "source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id from other_bank_transfer , req_id "
 					+ where + id);
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new OtherBankTransfer(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-					rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8));
+					rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8) , rs.getInt(9));
 			break;
 		}
 		if(statement != null)
@@ -654,7 +657,7 @@ public class DataBaseService implements DatabaseInterface {
 		
 		statement.close();
 		Loan loan = new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-				Date.getDateFromString(rs.getString(4)));
+				Date.getDateFromString(rs.getString(4)) , rs.getInt(5) == 1);
 		rs.close();
 		return loan;
 	}
@@ -749,6 +752,72 @@ public class DataBaseService implements DatabaseInterface {
 		statement.close();
 		rs.close();
 		return permissionType;
+	}
+
+	@Override
+	public void acceptOtherBankTransfer(int transId) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement(
+				"update Other_Bank_Transfer set accepted = 1 where transaction_id = " + transId);
+		statement.executeUpdate();
+	}
+
+	@Override
+	public void rejectOtherBankTransfer(int transId) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("delete from Other_bank_Transfer where transaction_id = " + transId);
+		statement.executeUpdate();
+		statement = conn.prepareStatement("delete from transactions where transaction_id = " + transId);
+		statement.executeUpdate();
+	}
+
+	@Override
+	public OtherBankTransfer getOtherBankTransByReqId(int reqId) throws Exception {
+		PreparedStatement preparedStatement = conn.prepareStatement("select transaction_id from Other_bank_Transfer where req_id = " + reqId);
+		ResultSet rs = preparedStatement.executeQuery();
+		if(!rs.next())
+			throw new Exception("Transaction is not exists");
+		return (OtherBankTransfer) getTransactionById(rs.getInt(1));
+	}
+
+	@Override
+	public Map<Integer,Loan> getRelevantLoans() throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("select * from loan where relevant = 1");
+		ResultSet rs = statement.executeQuery();
+		Map<Integer,Loan> loans = new LinkedHashMap<>();
+		while(rs.next())
+		{
+			loans.put(rs.getInt(1), new Loan(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)), Date.getDateFromString(rs.getString(4)) , true));
+		}
+		return loans;
+	}
+
+	@Override
+	public void setLoanIrrelevant(int loanId) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("update loan set relevant = 1 where loan_id = " + loanId);
+		statement.execute();
+	}
+
+	@Override
+	public Map<Integer, Set<LoanTransaction>> getAllRelevantLoanTransaction() throws Exception {
+		Map<Integer , Set<LoanTransaction>> out = new LinkedHashMap<>();
+		PreparedStatement statement = conn.prepareStatement(
+				  " select loan.loan_id , transactions.transaction_id , transactions.amount , account_id , payment_Number , final_Date , loan.loan_id"
+				+ " from transactions , Loan_transfer , loan "
+				+ " where transactions.transaction_id = transactions.transaction_id "
+				+ " and Loan_transfer.loan_id = loan.loan_id "
+				+ " and loan.relevant = 1");
+		
+		ResultSet rs = statement.executeQuery();
+		while(rs.next())
+		{
+			int loanId = rs.getInt(1);
+			if(!out.containsKey(rs.getInt(1)))
+			{
+				out.put(loanId, new LinkedHashSet<>());
+			}
+			Set<LoanTransaction> loanTransactions = out.get(loanId);
+			loanTransactions.add(new LoanTransaction(rs.getInt(2), rs.getFloat(3), Date.getDateFromString(rs.getString(4)), rs.getInt(5), rs.getInt(6),Date.getDateFromString(rs.getString(7)), rs.getInt(8)));
+		}
+		return out;
 	}
 
 }

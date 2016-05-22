@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import sysDesign.Worker.PermissionType;
+import logic.Worker.PermissionType;
 
 public class MainMenu extends JFrame {
 	private static final long serialVersionUID = 1L;
