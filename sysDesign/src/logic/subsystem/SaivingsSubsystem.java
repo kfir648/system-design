@@ -1,4 +1,4 @@
-package logic;
+package logic.subsystem;
 
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -9,6 +9,7 @@ import java.util.Set;
 
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
+import logic.classes.*;
 
 public class SaivingsSubsystem {
 	private static SaivingsSubsystem savingSubsystem=null;
@@ -30,11 +31,11 @@ public class SaivingsSubsystem {
 		int saivingsId=SQLinteface.insertSaving(amount, startDate, startDate , accountId);	
 	}
 	
-	public Set<logic.Saving> getSavingByAccountID (int id) throws SQLException{
+	public Set<Saving> getSavingByAccountID (int id) throws SQLException{
 		return SQLinteface.getSavingByAccountID(id);
 	}
 	
-	public Set<logic.Saving> getSavingsByCustomerID (int id) throws SQLException{
+	public Set<Saving> getSavingsByCustomerID (int id) throws SQLException{
 		Set<Account> Accounts =SQLinteface.getAccountsByCustomerID(id);
 		Set<Saving> savings= new LinkedHashSet<>();
 		for (Account acc : Accounts){

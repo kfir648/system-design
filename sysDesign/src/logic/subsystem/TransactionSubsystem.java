@@ -1,10 +1,11 @@
-package logic;
+package logic.subsystem;
 
 import java.sql.SQLException;
 import java.util.Set;
 
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
+import logic.classes.*;
 
 public class TransactionSubsystem {
 
@@ -22,11 +23,11 @@ public class TransactionSubsystem {
 		SQLinteface = DataBaseService.getDataBaseService();
 	}
 
-	public void insertTransactionHistory(logic.Transaction transaction) throws Exception{
+	public void insertTransactionHistory(Transaction transaction) throws Exception{
 		SQLinteface.insertTransaction(transaction);
 	}
 	
-	public Set<logic.Transaction> getHistoryTransactionByAccountID (int id) throws Exception{
+	public Set<Transaction> getHistoryTransactionByAccountID (int id) throws Exception{
 		return SQLinteface.getHistoryTransactionByAccountID(id);
 	}
 	

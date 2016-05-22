@@ -1,6 +1,4 @@
-package logic;
-
-import java.sql.SQLException;
+package logic.classes;
 
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
@@ -60,6 +58,6 @@ public class Transaction {
 
 	@Override
 	public String toString() {
-		return String.format("%6d , Date : %s , %.2f ", transId , transactionDate.toString() , amount);
+		return String.format("%s[%6d , Date : %s , %.2f] ", (amount < 0 ? "Deposite" : "Widrow") , transId , transactionDate.toString() , (amount < 0 ? -amount : amount));
 	}
 }

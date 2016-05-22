@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import logic.*;
-import logic.Worker.PermissionType;
+import logic.classes.*;
+import logic.classes.Worker.PermissionType;
 
 public class DataBaseService implements DatabaseInterface {
 

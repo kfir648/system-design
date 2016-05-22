@@ -7,12 +7,17 @@ import java.util.Set;
 import api_otherBank.transf.TransferRequestTuple;
 import api_otherBank.transf.TransferResult;
 import logic.*;
-import logic.Worker.PermissionType;
 import otherBankTrans.ConformEvent;
 import otherBankTrans.ConformTransactionListener;
 import otherBankTrans.OtherBankTrans;
 import otherBankTrans.TransactionEvent;
 import otherBankTrans.TransactionListener;
+import logic.classes.*;
+import logic.classes.Worker.PermissionType;
+import logic.subsystem.AccountManagmentSubsystem;
+import logic.subsystem.LoanSubsystem;
+import logic.subsystem.SaivingsSubsystem;
+import logic.subsystem.TransactionSubsystem;
 
 public class Main {
 
@@ -135,6 +140,7 @@ public class Main {
 			}
 		}
 		OtherBankTrans.closeConnection();
+		
 		s.close();
 	}
 
@@ -393,10 +399,11 @@ public class Main {
 			else
 				break;
 		}
-		System.out.println("Are you sure?(Y/N");
+		System.out.println("Are you sure?(Y/N)");
 		char selection = s.nextLine().charAt(0);
 		boolean wrongAnswer = false;
 		while (!wrongAnswer) {
+			wrongAnswer = true;
 			switch (selection) {
 			case 'Y':
 			case 'y':
@@ -414,7 +421,7 @@ public class Main {
 				break;
 
 			default:
-				wrongAnswer = true;
+				wrongAnswer = false;
 				break;
 			}
 		}

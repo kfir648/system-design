@@ -1,4 +1,4 @@
-package logic;
+package logic.subsystem;
 
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
@@ -6,11 +6,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.derby.iapi.transaction.TransactionControl;
-import org.apache.derby.impl.store.raw.xact.TransactionTable;
-
 import DBManegment.DataBaseService;
 import DBManegment.DatabaseInterface;
+import logic.classes.*;
 
 public class LoanSubsystem {
 	private static LoanSubsystem loanSubsystem=null;
@@ -24,7 +22,7 @@ public class LoanSubsystem {
 	}
 	
 	
-	public void insertLoan (float amount,logic.Date startDate, logic.Date finalDate, int accountId) throws Exception{
+	public void insertLoan (float amount,Date startDate, Date finalDate, int accountId) throws Exception{
 		SQLinteface.insertLoan(amount, startDate, finalDate , accountId); 
 	}
 	
@@ -34,15 +32,15 @@ public class LoanSubsystem {
 	}
 
 
-	public Set<logic.Loan> getLoansByAccountID (int id) throws SQLException{
+	public Set<Loan> getLoansByAccountID (int id) throws SQLException{
 		return SQLinteface.getLoansByAccountID(id);
 	}
 	
-	public logic.Loan getLoansByLoanID (int id) throws SQLException{
+	public Loan getLoansByLoanID (int id) throws SQLException{
 		return SQLinteface.getLoanById(id);
 	}
 	
-	public Set<logic.Loan> getLoansBycustomerID (int id) throws SQLException{
+	public Set<Loan> getLoansBycustomerID (int id) throws SQLException{
 		Set<Account> Accounts =SQLinteface.getAccountsByCustomerID(id);
 		Set<Loan> loans= new LinkedHashSet<>();
 		for (Account acc : Accounts){

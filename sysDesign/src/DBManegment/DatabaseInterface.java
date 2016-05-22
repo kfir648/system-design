@@ -6,18 +6,10 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 
-import logic.Account;
-import logic.Bank;
-import logic.Customer;
-import logic.Date;
-import logic.Loan;
-import logic.LoanTransaction;
-import logic.OtherBankTransfer;
-import logic.Saving;
-import logic.SavingTransaction;
-import logic.Transaction;
-import logic.Worker;
-import logic.Worker.PermissionType;
+import logic.classes.Worker.PermissionType;
+import logic.classes.*;
+import logic.classes.Date;
+
 
 public interface DatabaseInterface {
 
@@ -25,10 +17,10 @@ public interface DatabaseInterface {
 
 	public void insertCustomer(int customerId, String customerName) throws Exception;
 
-	public int insertLoan(float amount, logic.Date startDate,
-			logic.Date finalDate , int accountId) throws Exception;
+	public int insertLoan(float amount, logic.classes.Date startDate,
+			logic.classes.Date finalDate , int accountId) throws Exception;
 
-	public int insertSaving(float monthlyDeposit, logic.Date startDate, logic.Date finalDate , int accountId) throws Exception;
+	public int insertSaving(float monthlyDeposit, Date startDate, Date finalDate , int accountId) throws Exception;
 	
 	public void insertBindCustomerAccount(int accountId, int customerId) throws Exception;
 

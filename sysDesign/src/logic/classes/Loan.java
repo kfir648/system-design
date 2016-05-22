@@ -1,4 +1,4 @@
-package logic;
+package logic.classes;
 import java.sql.SQLException;
 
 import DBManegment.DataBaseService;
