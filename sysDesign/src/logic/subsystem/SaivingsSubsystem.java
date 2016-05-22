@@ -71,4 +71,8 @@ public class SaivingsSubsystem {
 		return sum;
 	}
 
+	public void createSavings(float amount, Date startDate, Date finalDate, int accountId) throws Exception {
+		new Saving(amount, startDate, finalDate, accountId);
+	}
+
 }

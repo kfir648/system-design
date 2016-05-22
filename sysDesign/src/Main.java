@@ -6,7 +6,6 @@ import java.util.Set;
 
 import api_otherBank.transf.TransferRequestTuple;
 import api_otherBank.transf.TransferResult;
-import logic.*;
 import otherBankTrans.ConformEvent;
 import otherBankTrans.ConformTransactionListener;
 import otherBankTrans.OtherBankTrans;
