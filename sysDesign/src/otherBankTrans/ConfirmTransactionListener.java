@@ -1,4 +1,4 @@
 package otherBankTrans;
-public interface ConformTransactionListener {
+public interface ConfirmTransactionListener {
 	void conformTransaction(ConformEvent event);
 }

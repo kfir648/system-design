@@ -64,7 +64,7 @@ public interface DatabaseInterface {
 
 	public void updateSaving(int savingId, float monthlyPaymentNumber, Date startSavingDate, Date finalSavingsDate) throws SQLException;
 	
-	public void DisconnectDataBase();
+	public void DisconnectDataBase() throws SQLException;
 	
 	public ResultSet queryTest(String sql) throws SQLException;
 	

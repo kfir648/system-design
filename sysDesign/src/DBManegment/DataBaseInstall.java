@@ -124,8 +124,6 @@ public class DataBaseInstall {
 			}
 			System.out.println("Connected to and created database " + dbName);
 
-			conn.setAutoCommit(true);
-
 			System.out.println("Creates tables");
 
 			System.out.println(

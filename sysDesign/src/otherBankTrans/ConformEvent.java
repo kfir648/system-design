@@ -1,9 +1,10 @@
 package otherBankTrans;
 
+import ibts.api.transf.TransferResult;
+
 import java.util.EventObject;
 import java.util.Set;
 
-import api_otherBank.transf.TransferResult;
 
 public class ConformEvent extends EventObject {
 	private static final long serialVersionUID = 2L;

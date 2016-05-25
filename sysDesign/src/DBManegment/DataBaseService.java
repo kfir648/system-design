@@ -34,16 +34,13 @@ public class DataBaseService implements DatabaseInterface {
 	private static final int BANK_LOAN_INTREST_POS = BANK_SAVING_INTREST_POS + Float.BYTES;
 	private static final int BANK_NAME_POS = BANK_LOAN_INTREST_POS + Float.BYTES;
 
-	private static String password;
-	private static String userName;
-	private static Properties props;
 	private Connection conn = null;
 	private static final String protocol = "jdbc:derby:";
 	private static DataBaseService dbs = null;
 
 	private DataBaseService(String dbName) throws SQLException {
 
-		new DataBaseInstall(dbName).Execute();
+		//new DataBaseInstall(dbName).Execute();
 		ConnectDataBase(dbName);
 		addFirstManager();
 	}
@@ -71,14 +68,9 @@ public class DataBaseService implements DatabaseInterface {
 	private void ConnectDataBase(String dbName) {
 
 		try {
-
+			
 			System.out.println("Data-Base connection begins");
-
-			if (userName != null && password != null)
-				conn = DriverManager.getConnection(protocol + dbName + ";create=true");
-			else
-				conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
-
+			conn = DriverManager.getConnection(protocol + dbName + ";create=true");
 			System.out.println("Connected to database " + dbName);
 
 			conn.setAutoCommit(false);
@@ -89,10 +81,10 @@ public class DataBaseService implements DatabaseInterface {
 
 	}
 
-	public void DisconnectDataBase() {
+	public void DisconnectDataBase() throws SQLException {
 
 		ResultSet rs = null;
-
+		conn.setAutoCommit(true);
 		System.out.println("Shuting down, please wait");
 
 		try {
@@ -568,8 +560,6 @@ public class DataBaseService implements DatabaseInterface {
 
 		ResultSet rs = statement.executeQuery();
 		rs.next();
-		statement.close();
-		rs.close();
 		return getTransactionById(id, rs.getInt(1));
 	}
 
@@ -601,10 +591,6 @@ public class DataBaseService implements DatabaseInterface {
 			break;
 
 		case SAME_BANK_TRANS_ID:
-			// System.out.println(startStat + "source_Id , dest_id from
-			// same_bank_transfer " + fromS + where + id + " AND
-			// same_bank_transfer.transaction_ID =
-			// Transactions.transaction_ID");
 			statement = conn.prepareStatement(startStat + " , source_Id , dest_id from same_bank_transfer " + fromS
 					+ where + id + " AND same_bank_transfer.transaction_ID = Transactions.transaction_ID");
 			rs = statement.executeQuery();
@@ -615,13 +601,12 @@ public class DataBaseService implements DatabaseInterface {
 
 		case OTHER_BANK_ID:
 			statement = conn.prepareStatement(startStat
-					+ " , source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id from other_bank_transfer , req_id "
-					+ " from other_bank_transfer " + fromS + where + id
+					+ " , source_accunt_ID , source_bank_id , dest_accunt_id , dest_bank_id , req_id , accepted from other_bank_transfer " + fromS + where + id
 					+ " AND other_bank_transfer.transaction_ID = Transactions.transaction_ID");
 			rs = statement.executeQuery();
 			rs.next();
 			trans = new OtherBankTransfer(rs.getInt(1), rs.getFloat(2), Date.getDateFromString(rs.getString(3)),
-					rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9));
+					rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9) , rs.getInt(10) == 1);
 			break;
 
 		case REGULAR_TRANS_ID:
@@ -746,6 +731,7 @@ public class DataBaseService implements DatabaseInterface {
 		PreparedStatement statement = conn
 				.prepareStatement("update Other_Bank_Transfer set accepted = 1 where transaction_id = " + transId);
 		statement.executeUpdate();
+		conn.commit();
 	}
 
 	@Override
@@ -755,6 +741,7 @@ public class DataBaseService implements DatabaseInterface {
 		statement.executeUpdate();
 		statement = conn.prepareStatement("delete from transactions where transaction_id = " + transId);
 		statement.executeUpdate();
+		conn.commit();
 	}
 
 	@Override

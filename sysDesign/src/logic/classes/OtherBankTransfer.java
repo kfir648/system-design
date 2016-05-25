@@ -14,16 +14,16 @@ public class OtherBankTransfer extends Transaction {
 	private boolean accepted = false; 
 	
 	public OtherBankTransfer( float amount, Date transactionDate , int accountId , int sourceAccuntId , int sourceBank , int destinationAccuntId , int destinationBank , int reqId) throws Exception {
-		this(0 , amount , transactionDate , accountId , sourceAccuntId , sourceBank , destinationAccuntId , destinationBank ,reqId);
+		this(0 , amount , transactionDate , accountId , sourceAccuntId , sourceBank , destinationAccuntId , destinationBank ,reqId,false);
 		DatabaseInterface db = DataBaseService.getDataBaseService();
 		this.setTransId(db.insertTransaction(this));
 		if(destinationAccuntId == getAccuntId())
 			acceptTransfer();
 	}
 
-	public OtherBankTransfer(int transId  , float amount, Date transactionDate , int accountId , int sourceAccuntId , int sourceBank ,	int destinationAccuntId , int destinationBank, int reqId) throws Exception {
+	public OtherBankTransfer(int transId  , float amount, Date transactionDate , int accountId , int sourceAccuntId , int sourceBank ,	int destinationAccuntId , int destinationBank, int reqId , boolean accepted) throws Exception {
 		super(transId , amount, transactionDate , accountId);
-		
+		this.accepted = accepted;
 		this.reqId = reqId;
 		this.sourceAccuntId = sourceAccuntId;
 		this.sourceBank = sourceBank;
@@ -70,7 +70,7 @@ public class OtherBankTransfer extends Transaction {
 		{
 			return sourceAccuntId + " --> " + getAmount() + " --> " + destinationAccuntId + " Bank: " + destinationBank + ", " + (accepted?"Completed":"Incomplete");
 		}else{
-			return destinationAccuntId + " <-- " + getAccuntId() + " <-- " + sourceAccuntId + " Banke: " + sourceBank + ", " + (accepted?"Completed":"Incomplete"); 
+			return destinationAccuntId + " <-- " + getAmount() + " <-- " + sourceAccuntId + " Banke: " + sourceBank + ", " + (accepted?"Completed":"Incomplete"); 
 		}
 	}
 

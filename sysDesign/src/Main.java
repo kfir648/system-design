@@ -1,13 +1,16 @@
+import ibts.api.transf.TransferRequestTuple;
+import ibts.api.transf.TransferResult;
+
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Scanner;
 import java.util.Set;
 
-import api_otherBank.transf.TransferRequestTuple;
-import api_otherBank.transf.TransferResult;
+import DBManegment.DataBaseService;
 import otherBankTrans.ConformEvent;
-import otherBankTrans.ConformTransactionListener;
+import otherBankTrans.ConfirmTransactionListener;
 import otherBankTrans.OtherBankTrans;
 import otherBankTrans.TransactionEvent;
 import otherBankTrans.TransactionListener;
@@ -23,14 +26,14 @@ public class Main {
 	public static Scanner s = new Scanner(System.in);
 	public static OtherBankTrans otherBankTrans = OtherBankTrans.getOtherBankTrans();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 
 		boolean secssed = false;
 		Worker worker = null;
 		PermissionType permission = null;
 
 		checkCurrentStatus();
-
+		
 		while (!secssed) {
 			System.out.println("Welcome!! please enter user name :");
 			String userName = s.nextLine();
@@ -139,7 +142,12 @@ public class Main {
 			}
 		}
 		OtherBankTrans.closeConnection();
-		
+		try {
+			DataBaseService.getDataBaseService().DisconnectDataBase();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		s.close();
 	}
 
@@ -176,8 +184,7 @@ public class Main {
 				dest.setAccountBalance(preBalDest + amount);
 				new SameBankTransfer(amount, Date.getNow(), dest.getAccountId(), src.getAccountId(),
 						dest.getAccountId());
-				new SameBankTransfer(amount, Date.getNow(), src.getAccountId(), src.getAccountId(),
-						dest.getAccountId());
+				new SameBankTransfer(amount, Date.getNow(), src.getAccountId(), src.getAccountId(), dest.getAccountId());
 				System.out.println("Transfer complete");
 			} else {
 				System.out.println("Enter bank id:");
@@ -261,16 +268,19 @@ public class Main {
 			otherBankTrans.addNewTransferListener(new TransactionListener() {
 				@Override
 				public void transactionIncomes(TransactionEvent event) {
+					// System.out.println("checking trasactions");
 					for (TransferRequestTuple requestTuple : event.getTransferRequestTuple()) {
 						try {
-							Account acc = AccountManagmentSubsystem.getaccountSubsystem()
-									.getAccountByID(requestTuple.receiverAccountId);
+							// System.out.println("checking " + requestTuple);
+							Account acc = AccountManagmentSubsystem.getaccountSubsystem().getAccountByID(
+									requestTuple.receiverAccountId);
 							if (acc != null) {
 								int reqId = otherBankTrans.accept(requestTuple);
-								new OtherBankTransfer(requestTuple.amount, Date.getNow(), acc.getAccountId(),
-										requestTuple.senderAccountId, requestTuple.senderBankId, acc.getAccountId(),
-										OtherBankTrans.ID, reqId);
+								OtherBankTransfer bankTrans = new OtherBankTransfer(requestTuple.amount, Date.getNow(),
+										acc.getAccountId(), requestTuple.senderAccountId, requestTuple.senderBankId,
+										acc.getAccountId(), OtherBankTrans.ID, reqId);
 								acc.setAccountBalance(acc.getAccountBalance() + requestTuple.amount);
+								bankTrans.acceptTransfer();
 							} else {
 								otherBankTrans.reject(requestTuple);
 							}
@@ -284,19 +294,23 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		otherBankTrans.addConformTransferListener(new ConformTransactionListener() {
+		otherBankTrans.addConformTransferListener(new ConfirmTransactionListener() {
 
 			@Override
 			public void conformTransaction(ConformEvent event) {
+				// System.out.println("checking confirm transactions");
 				for (TransferResult result : event.getTransferResult()) {
 					try {
+						// System.out.println("get " + result);
 						int outcome = result.getOutcome();
 						if (outcome == TransferRequestTuple.ACCEPT) {
 							OtherBankTransfer bankTransfer = TransactionSubsystem.getTransctionSubsystem()
 									.getOtherBankTransByReqId(result.getRequestId());
-							Account account = AccountManagmentSubsystem.getaccountSubsystem()
-									.getAccountByID(bankTransfer.getAccuntId());
+							Account account = AccountManagmentSubsystem.getaccountSubsystem().getAccountByID(
+									bankTransfer.getAccuntId());
 							account.setAccountBalance(account.getAccountBalance() - bankTransfer.getAmount());
+							bankTransfer.acceptTransfer();
+							OtherBankTrans.getOtherBankTrans().deleteConfirmRequest(bankTransfer.getSourceBank(),	bankTransfer.getSourceAccuntId(), bankTransfer.getReqId());
 						}
 					} catch (Exception e) {
 						System.out.println(e.getMessage());
@@ -331,8 +345,7 @@ public class Main {
 			Customer customer = new Customer(custId, name);
 			System.out.println("The customer is entered to create new Account? enter Y/N");
 			char c = s.nextLine().charAt(0);
-			if(c == 'y' || c == 'Y')
-			{
+			if (c == 'y' || c == 'Y') {
 				Account account = AddAccount();
 				customer.addAccount(account);
 			}
@@ -473,7 +486,7 @@ public class Main {
 
 	private static void checkSavings() {
 		Saving save = getSaving();
-		if(save != null)
+		if (save != null)
 			System.out.println(save.toString());
 	}
 
@@ -484,7 +497,7 @@ public class Main {
 		int select = s.nextInt();
 		Set<Saving> savings = null;
 		switch (select) {
-		case 1: /// savings id
+		case 1: // / savings id
 			try {
 				SaivingsSubsystem savingSub = SaivingsSubsystem.getSavingSubsystem();
 				System.out.println("Enter saving id:");
@@ -497,7 +510,7 @@ public class Main {
 			}
 			break;
 
-		case 2: /// customer id
+		case 2: // / customer id
 			try {
 				SaivingsSubsystem savingSub = SaivingsSubsystem.getSavingSubsystem();
 				System.out.println("Enter customer id:");
@@ -509,7 +522,7 @@ public class Main {
 			}
 			break;
 
-		case 3: /// account id
+		case 3: // / account id
 			try {
 				SaivingsSubsystem savingSub = SaivingsSubsystem.getSavingSubsystem();
 				System.out.println("Enter account id:");
@@ -531,7 +544,7 @@ public class Main {
 		}
 		int selected = s.nextInt();
 		s.nextLine();
-		if(selected == -1)
+		if (selected == -1)
 			return null;
 		return saveArry[selected];
 
@@ -621,7 +634,7 @@ public class Main {
 		s.nextLine();
 		Set<Loan> loans = null;
 		switch (select) {
-		case 1: /// loan id
+		case 1: // / loan id
 			try {
 				LoanSubsystem loanSub = LoanSubsystem.getLoanSubsystem();
 				System.out.println("Enter loan id:");
@@ -634,7 +647,7 @@ public class Main {
 			}
 			break;
 
-		case 2: /// customer id
+		case 2: // / customer id
 			try {
 				LoanSubsystem loanSub = LoanSubsystem.getLoanSubsystem();
 				System.out.println("Enter customer id:");
@@ -646,7 +659,7 @@ public class Main {
 			}
 			break;
 
-		case 3: /// account id
+		case 3: // / account id
 			try {
 				LoanSubsystem loanSub = LoanSubsystem.getLoanSubsystem();
 				System.out.println("Enter account id:");

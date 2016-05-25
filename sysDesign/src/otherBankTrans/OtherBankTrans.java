@@ -1,5 +1,11 @@
 package otherBankTrans;
 
+import ibts.api.AuthException;
+import ibts.api.IBTS;
+import ibts.api.transf.TransferException;
+import ibts.api.transf.TransferRequestTuple;
+import ibts.api.transf.TransferResult;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -11,11 +17,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Set;
 
-import api_otherBank.AuthException;
-import api_otherBank.IBTS;
-import api_otherBank.transf.TransferException;
-import api_otherBank.transf.TransferRequestTuple;
-import api_otherBank.transf.TransferResult;
 import logic.classes.Account;
 
 public class OtherBankTrans {
@@ -25,9 +26,9 @@ public class OtherBankTrans {
 
 	private static OtherBankTrans otherBankTrans = null;
 	private ArrayList<TransactionListener> newTranslisteners = null;
-	private ArrayList<ConformTransactionListener> conformTransactionListeners = null;
+	private ArrayList<ConfirmTransactionListener> confirmTransactionListeners = null;
 
-	private final static long TIME_TO_CHECK_INCOM_TRANS = 10000; // 10 seconds
+	private final static long TIME_TO_CHECK_INCOM_TRANS = 5000; // 5 seconds
 	private final static String NAME = "IBTS";
 	public final static int ID = 255;
 	private final static String SECRET = "7cufHngk";
@@ -75,76 +76,27 @@ public class OtherBankTrans {
 		newTranslisteners.remove(listener);
 	}
 
-	public synchronized void addConformTransferListener(ConformTransactionListener listener) {
+	public synchronized void addConformTransferListener(ConfirmTransactionListener listener) {
 		if (listener == null)
 			return;
-		if (conformTransactionListeners == null)
-			conformTransactionListeners = new ArrayList<>();
-		if (conformTransactionListeners.contains(listener))
+		if (confirmTransactionListeners == null)
+			confirmTransactionListeners = new ArrayList<>();
+		if (confirmTransactionListeners.contains(listener))
 			return;
-		conformTransactionListeners.add(listener);
+		confirmTransactionListeners.add(listener);
 	}
 
-	public synchronized void removeConformTransferListener(ConformTransactionListener listener) {
+	public synchronized void removeConfirmTransferListener(ConfirmTransactionListener listener) {
 		if (listener == null)
 			return;
-		if (conformTransactionListeners == null)
+		if (confirmTransactionListeners == null)
 			return;
-		conformTransactionListeners.remove(listener);
+		confirmTransactionListeners.remove(listener);
 	}
 
 	private OtherBankTrans() throws RemoteException, NotBoundException {
-		//Registry registry = LocateRegistry.getRegistry("LOCALHOST");
-		server =  new IBTS() {
-			
-			@Override
-			public void send(String secret, int reqId, int senderBankId, int senderAccountId, int receiverBankId,
-					int receiverAccountId, int amount) throws RemoteException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void reject(String secret, int receiverBankId, int accountId, int reqId) throws RemoteException,
-					TransferException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public Set<TransferRequestTuple> getNewRequestsFor(String secret, int receiverBankId, int numReqs)
-					throws RemoteException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public Set<TransferResult> getCompletedRequestsOf(String secret, int senderBankId, int numReqs)
-					throws RemoteException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public void deleteRequest(String secret, int senderBankId, int senderAccountId, int reqId) throws RemoteException,
-					TransferException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public int allocateBlock(int numIds) throws RemoteException, IOException {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-			
-			@Override
-			public void accept(String secret, int receiverBankId, int accountId, int reqId) throws RemoteException,
-					TransferException, SQLException, AuthException {
-				// TODO Auto-generated method stub
-				
-			}
-		};////(IBTS) registry.lookup(NAME);
+		Registry registry = LocateRegistry.getRegistry("172.20.18.34");
+		server =  (IBTS) registry.lookup(NAME);
 
 		threadWorking = true;
 		thread = new Thread(new Runnable() {
@@ -154,23 +106,27 @@ public class OtherBankTrans {
 					try {
 						Set<TransferRequestTuple> transferRequestTuples = server.getNewRequestsFor(SECRET, ID,
 								MAX_TRANSACTIONS);
-						if (!transferRequestTuples.isEmpty())
+						if (transferRequestTuples != null && !transferRequestTuples.isEmpty())
 							fireNewRequestListeners(transferRequestTuples);
 
 						Set<TransferResult> transferResults = server.getCompletedRequestsOf(SECRET, ID,
 								MAX_TRANSACTIONS);
-						if (!transferResults.isEmpty())
+						if (transferRequestTuples != null && !transferResults.isEmpty())
 							fireConformRequestListeners(transferResults);
 						Thread.sleep(TIME_TO_CHECK_INCOM_TRANS);
-					} catch (InterruptedException | RemoteException | SQLException | AuthException e) {
+					} catch (AuthException | RemoteException | SQLException | InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
 			}
 		});
-
+		thread.start();
 	}
 
+	public void deleteConfirmRequest(int senderBankId , int senderAccountId , int reqId) throws RemoteException, TransferException, SQLException, AuthException {
+		server.deleteRequest(SECRET,senderBankId , senderAccountId , reqId);
+	}
+	
 	public int sendTransaction(Account sender, Account reciver, int otherBankId, float amount)
 			throws SQLException, AuthException, IOException {
 		int reqId = getLastRequestId();
@@ -189,11 +145,11 @@ public class OtherBankTrans {
 	}
 
 	private void fireConformRequestListeners(Set<TransferResult> transferResults) {
-		if (conformTransactionListeners == null || conformTransactionListeners.isEmpty())
+		if (confirmTransactionListeners == null || confirmTransactionListeners.isEmpty())
 			return;
 
 		ConformEvent event = new ConformEvent(this, transferResults);
-		for (ConformTransactionListener listener : conformTransactionListeners) {
+		for (ConfirmTransactionListener listener : confirmTransactionListeners) {
 			listener.conformTransaction(event);
 		}
 	}
@@ -204,13 +160,15 @@ public class OtherBankTrans {
 	}
 
 	public boolean reject(TransferRequestTuple requestTuple) {
-		try {
-			server.reject(SECRET, ID, requestTuple.receiverAccountId, requestTuple.id);
-			return true;
-		} catch (RemoteException | TransferException | SQLException | AuthException e) {
-			e.printStackTrace();
-			return false;
-		}
+		
+			try {
+				server.reject(SECRET, ID, requestTuple.receiverAccountId, requestTuple.id);
+				return true;
+			} catch (RemoteException | TransferException | SQLException | AuthException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
 	}
 
 	private int getLastRequestId() throws IOException {
@@ -219,10 +177,10 @@ public class OtherBankTrans {
 		RandomAccessFile accessFile;
 		if (!file.exists()) {
 			reqId = START_REQUEST_ID;
-			accessFile = new RandomAccessFile(file, "w");
+			accessFile = new RandomAccessFile(file, "rw");
 			accessFile.writeInt(START_REQUEST_ID);
 		} else {
-			accessFile = new RandomAccessFile(file, "wr");
+			accessFile = new RandomAccessFile(file, "rw");
 			reqId = accessFile.readInt() + 1;
 			accessFile.seek(0);
 			accessFile.writeInt(reqId);
